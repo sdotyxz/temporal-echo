@@ -1,0 +1,21 @@
+framework: generic
+
+project:
+  name: Temporal Echo
+  description: TriJam #358 - Temporal echo mechanics game
+  version: 1.0.0
+
+changes:
+  base_dir: openspec/changes
+
+specs:
+  base_dir: openspec/specs
+
+defaults:
+  author: sdon
+  
+git:
+  auto_commit: false
+  
+validation:
+  strict: false

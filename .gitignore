@@ -1,0 +1,9 @@
+.godot/
+*.tmp
+*.import
+.DS_Store
+*.exe
+*.zip
+*.pck
+export.cfg
+export_presets.cfg
