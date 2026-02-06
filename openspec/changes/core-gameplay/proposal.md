@@ -6,119 +6,119 @@ created: 2026-02-06
 author: sdon
 ---
 
-# Core Gameplay - Temporal Echo
+# 核心玩法 - 时间回声
 
-## Overview
+## 概述
 
-Implement the complete core gameplay loop for Temporal Echo, a TriJam #358 entry featuring temporal echo mechanics where players coordinate with their 3-second-ago self to defeat enemies.
+实现《时间回声》的完整核心玩法循环，这是一款 TriJam #358 参赛作品，玩家需要与3秒前的自己配合击败敌人。
 
-## Game Concept
+## 游戏概念
 
-**One-Sentence Pitch:**  
-"Fire your temporal echo - 3 seconds later, your past self rebounds from walls to fight alongside you."
+**一句话介绍：**
+> "发射你的时间回声——3秒后，过去的你从墙边反弹回来与你并肩作战。"
 
-**Core Mechanic:**  
-Players shoot "temporal echoes" that don't interact with enemies immediately. After a 3-second delay, a ghost of the player appears at their firing position and fires the same shot, creating cross-fire opportunities.
+**核心机制：**
+玩家发射"时间回声"，这些回声不会立即与敌人互动。3秒后，玩家的幽灵出现在发射位置并发射同样的子弹，创造与当前玩家交叉火力的机会。
 
-## Gameplay Loop
+## 游戏循环
 
-### Basic Loop
-1. **Aim & Fire** → Shoot at walls to set up rebound angles
-2. **Move** → Position yourself for the cross-fire moment  
-3. **Temporal Echo Activates** → 3-second-ago self fires from past position
-4. **Coordinated Strike** → Present + Past fire simultaneously at the enemy
-5. **Repeat** → Chain multiple echoes for complex patterns
+### 基础循环
+1. **瞄准射击** → 向墙壁射击设置反弹角度
+2. **移动** → 为交叉火力时刻定位
+3. **时间回声激活** → 3秒前的自己在过去位置开火
+4. **协同打击** → 现在的你和过去的你同时射击敌人
+5. **重复** → 连锁多个回声形成复杂模式
 
-### Strategy Spectrum
+### 策略层次
 
-| Skill Level | Strategy | Result |
-|-------------|----------|--------|
-| **Beginner** | Fire → Retreat → Let echo hit | Safe but slow |
-| **Intermediate** | Fire → Flank → Cross-fire | Moderate efficiency |
-| **Advanced** | Chain 2-3 echoes → Multi-direction assault | Maximum damage |
+| 技能水平 | 策略 | 结果 |
+|---------|------|------|
+| **新手** | 射击 → 后退 → 等回声命中 | 安全但慢 |
+| **进阶** | 射击 → 侧翼包抄 → 交叉火力 | 中等效率 |
+| **高级** | 连锁2-3个回声 → 多方向攻击 | 最大伤害 |
 
-## Technical Requirements
+## 技术需求
 
-- **Engine**: Godot 4.6
-- **Resolution**: 800x600
-- **Input**: Keyboard (WASD) + Mouse
-- **Target FPS**: 60
+- **引擎**: Godot 4.6
+- **分辨率**: 800x600
+- **输入**: 键盘 (WASD) + 鼠标
+- **目标帧率**: 60
 
-## Artifacts
+## 产出物
 
-### 1. Player System (`src/player.gd`)
-- Movement with WASD
-- History recording (180 frames = 3 seconds)
-- Echo spawning logic
-- Dash ability (space)
+### 1. 玩家系统 (`src/player.gd`)
+- WASD移动
+- 历史记录（180帧 = 3秒）
+- 回声生成逻辑
+- 冲刺能力（空格键）
 
-### 2. Bullet System (`src/bullet.gd`)  
-- Physics-based movement
-- Wall bouncing (mirror reflection)
-- Max 3 bounces
-- Speed increase +20% per bounce
-- Color progression: white → yellow → orange → red
+### 2. 子弹系统 (`src/bullet.gd`)
+- 基于物理的移动
+- 墙壁反弹（镜面反射）
+- 最多3次反弹
+- 每次反弹速度+20%
+- 颜色变化：白 → 黄 → 橙 → 红
 
-### 3. Echo System (`src/echo.gd`)
-- Spawns at historical player position
-- Fires in historical aim direction
-- Semi-transparent cyan visual
-- Invulnerable (ghost state)
-- 2-second lifetime
+### 3. 回声系统 (`src/echo.gd`)
+- 在历史玩家位置生成
+- 按历史瞄准方向射击
+- 半透明青色视觉
+- 无敌（幽灵状态）
+- 2秒存活时间
 
-### 4. Boss System (`src/boss.gd`)
-- Single boss: Chronos Sentinel
-- 10 HP (requires 5 dual-hits)
-- Slow pursuit AI (80 px/s)
-- Always faces player
+### 4. Boss系统 (`src/boss.gd`)
+- 单个Boss：时间哨兵
+- 10 HP（需要5次双重命中）
+- 缓慢追击AI（80 px/s）
+- 始终面向玩家
 
-### 5. Game Scene (`scenes/game.tscn`)
-- Symmetric arena layout
-- 8 steel walls for rebound points
-- Boss in center
-- UI overlay (HP bars, timer)
+### 5. 游戏场景 (`scenes/game.tscn`)
+- 对称竞技场布局
+- 8个钢墙用于反弹点
+- 中心Boss
+- UI覆盖（血条、计时器）
 
-### 6. Trajectory Preview (`src/trajectory_preview.gd`)
-- Dashed line showing predicted path
-- 3-second marker indicator
-- RayCast-based calculation
+### 6. 轨迹预览 (`src/trajectory_preview.gd`)
+- 虚线显示预测路径
+- 3秒位置标记
+- 基于RayCast的计算
 
-### 7. Audio Manager (`src/audio_manager.gd`)
-- Sound effects (Kenney Digital Audio)
-- Music loop (30-second ambient)
-- Pitch modulation on bounce
+### 7. 音频管理器 (`src/audio_manager.gd`)
+- 音效（Kenney数字音频）
+- 音乐循环（30秒环境音）
+- 反弹音调调制
 
-## Dependencies
+## 依赖项
 
 - Godot 4.6
-- Kenney Digital Audio Pack (sound effects)
-- Kenney 1-bit Pack (optional sprites)
+- Kenney数字音频包（音效）
+- Kenney 1-bit包（可选精灵）
 
-## 3-Hour Development Timeline
+## 3小时开发时间表
 
-| Time | Task | Deliverable |
-|------|------|-------------|
-| 0:00-0:10 | Project setup + Player movement | Moving character |
-| 0:10-0:35 | History recording system | Echo spawns after 3s |
-| 0:35-0:55 | Bullet physics + bouncing | Bullets rebound correctly |
-| 0:55-1:15 | Trajectory preview | Dashed line shows path |
-| 1:15-1:35 | Boss AI + HP system | Boss chases player |
-| 1:35-2:00 | Damage system + win/lose | Can kill boss |
-| 2:00-2:25 | Audio + screen effects | Juice added |
-| 2:25-2:50 | Polish + bug fixes | Smooth experience |
-| 2:50-3:00 | Build + Itch.io upload | Submittable game |
+| 时间 | 任务 | 产出 |
+|------|------|------|
+| 0:00-0:10 | 项目设置 + 玩家移动 | 可移动角色 |
+| 0:10-0:35 | 历史记录系统 | 3秒后生成回声 |
+| 0:35-0:55 | 子弹物理 + 反弹 | 子弹正确反弹 |
+| 0:55-1:15 | 轨迹预览 | 虚线显示路径 |
+| 1:15-1:35 | Boss AI + HP系统 | Boss追击玩家 |
+| 1:35-2:00 | 伤害系统 + 胜负 | 能击杀Boss |
+| 2:00-2:25 | 音频 + 屏幕效果 | 添加Juice |
+| 2:25-2:50 | 打磨 + Bug修复 | 流畅体验 |
+| 2:50-3:00 | 打包 + Itch.io上传 | 可提交的游戏 |
 
-## Design Pillars
+## 设计支柱
 
-1. **Cognitive Clarity Over Visual Spectacle**  
-   Every element must answer: "What is happening and why?"
+1. **认知清晰优于视觉华丽**
+   每个元素都要回答："发生了什么，为什么？"
 
-2. **Skill Expression Through Timing**  
-   Same setup, different execution times = different results
+2. **通过时机表达技能**
+   相同设置，不同执行时间 = 不同结果
 
-3. **One Deep Mechanic Over Many Shallow Ones**  
-   Temporal echo is the star. Everything else supports it.
+3. **一个深度机制胜过多个浅层机制**
+   时间回声是主角，其他都是支持。
 
-## Notes
+## 备注
 
-Focus on ONE boss enemy for 3-hour scope. Symmetric arena simplifies learning. Trajectory preview is critical for understanding. Audio feedback essential for timing.
+3小时范围内只专注于一个Boss敌人。对称竞技场简化学习。轨迹预览对理解至关重要。音频反馈对时机至关重要。

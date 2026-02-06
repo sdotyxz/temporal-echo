@@ -1,193 +1,193 @@
-# Core Gameplay Specifications
+# 核心玩法规格
 
-## Requirements
+## 需求
 
-### Functional Requirements
+### 功能需求
 
-#### FR-001: Player Movement
-- **Priority**: P0 (Critical)
-- **Description**: Player can move in 8 directions using WASD or arrow keys
-- **Acceptance Criteria**:
-  - [ ] Movement speed: 200 px/s
-  - [ ] Smooth acceleration/deceleration
-  - [ ] No input lag
-  - [ ] Sprite faces movement direction
+#### FR-001: 玩家移动
+- **优先级**: P0 (关键)
+- **描述**: 玩家可以使用WASD或方向键在8个方向移动
+- **验收标准**:
+  - [ ] 移动速度：200 px/s
+  - [ ] 平滑加速/减速
+  - [ ] 无输入延迟
+  - [ ] 精灵面向移动方向
 
-#### FR-002: Mouse Aiming
-- **Priority**: P0 (Critical)
-- **Description**: Player aims using mouse cursor
-- **Acceptance Criteria**:
-  - [ ] Sprite rotates to face mouse position
-  - [ ] Aim direction is continuous (360 degrees)
-  - [ ] No dead zones
+#### FR-002: 鼠标瞄准
+- **优先级**: P0 (关键)
+- **描述**: 玩家使用鼠标光标瞄准
+- **验收标准**:
+  - [ ] 精灵旋转面向鼠标位置
+  - [ ] 瞄准方向连续（360度）
+  - [ ] 无死区
 
-#### FR-003: Temporal Echo Shooting
-- **Priority**: P0 (Critical)
-- **Description**: Left click fires a temporal echo
-- **Acceptance Criteria**:
-  - [ ] Bullet spawns at player position
-  - [ ] Bullet travels in aim direction
-  - [ ] Echo spawns exactly 3 seconds later
-  - [ ] Echo fires from recorded position
-  - [ ] Cooldown: 0.3 seconds between shots
+#### FR-003: 时间回声射击
+- **优先级**: P0 (关键)
+- **描述**: 左键点击发射时间回声
+- **验收标准**:
+  - [ ] 子弹在玩家位置生成
+  - [ ] 子弹沿瞄准方向飞行
+  - [ ] 回声3秒后生成
+  - [ ] 回声从记录位置射击
+  - [ ] 冷却：射击间隔0.3秒
 
-#### FR-004: History Recording
-- **Priority**: P0 (Critical)
-- **Description**: System records 3 seconds of player state
-- **Acceptance Criteria**:
-  - [ ] Records position every frame (60fps)
-  - [ ] Records aim direction every frame
-  - [ ] Stores exactly 180 frames
-  - [ ] Circular buffer implementation
-  - [ ] Memory efficient
+#### FR-004: 历史记录
+- **优先级**: P0 (关键)
+- **描述**: 系统记录3秒玩家状态
+- **验收标准**:
+  - [ ] 每帧记录位置（60fps）
+  - [ ] 每帧记录瞄准方向
+  - [ ] 存储恰好180帧
+  - [ ] 循环缓冲区实现
+  - [ ] 内存高效
 
-#### FR-005: Bullet Physics
-- **Priority**: P0 (Critical)
-- **Description**: Bullets bounce off walls
-- **Acceptance Criteria**:
-  - [ ] Mirror reflection bounce (45° in = 45° out)
-  - [ ] Max 3 bounces per bullet
-  - [ ] Speed increases 20% per bounce
-  - [ ] Bullets destroyed after 3rd bounce
+#### FR-005: 子弹物理
+- **优先级**: P0 (关键)
+- **描述**: 子弹从墙壁反弹
+- **验收标准**:
+  - [ ] 镜面反射反弹（45°入射 = 45°反射）
+  - [ ] 每颗子弹最多3次反弹
+  - [ ] 每次反弹速度+20%
+  - [ ] 第3次反弹后子弹消失
 
-#### FR-006: Bullet Visuals
-- **Priority**: P1 (Important)
-- **Description**: Bullets change color per bounce
-- **Acceptance Criteria**:
-  - [ ] 0 bounces: White
-  - [ ] 1 bounce: Yellow
-  - [ ] 2 bounces: Orange
-  - [ ] 3 bounces: Red
-  - [ ] Echo bullets: Cyan (distinct from player)
+#### FR-006: 子弹视觉
+- **优先级**: P1 (重要)
+- **描述**: 子弹每次反弹改变颜色
+- **验收标准**:
+  - [ ] 0次反弹：白色
+  - [ ] 1次反弹：黄色
+  - [ ] 2次反弹：橙色
+  - [ ] 3次反弹：红色
+  - [ ] 回声子弹：青色（与玩家区分）
 
 #### FR-007: Boss AI
-- **Priority**: P0 (Critical)
-- **Description**: Single boss enemy with pursuit behavior
-- **Acceptance Criteria**:
-  - [ ] Moves toward player at 80 px/s
-  - [ ] Always faces player
-  - [ ] 10 HP total
-  - [ ] Contact damage to player
-  - [ ] Defeatable (can reach 0 HP)
+- **优先级**: P0 (关键)
+- **描述**: 单个Boss敌人，追击行为
+- **验收标准**:
+  - [ ] 以80 px/s向玩家移动
+  - [ ] 始终面向玩家
+  - [ ] 总共10 HP
+  - [ ] 接触伤害
+  - [ ] 可击败（可降至0 HP）
 
-#### FR-008: Damage System
-- **Priority**: P0 (Critical)
-- **Description**: Bullets deal damage to boss
-- **Acceptance Criteria**:
-  - [ ] Single bullet: 1 damage
-  - [ ] Simultaneous player+echo: 2 damage
-  - [ ] Dual hit detection within 0.1s window
-  - [ ] Visual flash on hit (red)
+#### FR-008: 伤害系统
+- **优先级**: P0 (关键)
+- **描述**: 子弹对Boss造成伤害
+- **验收标准**:
+  - [ ] 单颗子弹：1点伤害
+  - [ ] 玩家+回声同时命中：2点伤害
+  - [ ] 0.1秒窗口内检测双重命中
+  - [ ] 命中时视觉闪烁（红色）
 
-#### FR-009: Player Health
-- **Priority**: P0 (Critical)
-- **Description**: Player can take damage and die
-- **Acceptance Criteria**:
-  - [ ] 3 HP total
-  - [ ] Lose 1 HP on boss contact
-  - [ ] 1-second invincibility after hit
-  - [ ] Visual feedback (flash red)
+#### FR-009: 玩家生命值
+- **优先级**: P0 (关键)
+- **描述**: 玩家可以受伤和死亡
+- **验收标准**:
+  - [ ] 总共3 HP
+  - [ ] Boss接触失去1 HP
+  - [ ] 受伤后1秒无敌
+  - [ ] 视觉反馈（红色闪烁）
 
-#### FR-010: Win/Lose Conditions
-- **Priority**: P0 (Critical)
-- **Description**: Game ends with victory or defeat
-- **Acceptance Criteria**:
-  - [ ] Victory: Boss HP reaches 0
-  - [ ] Defeat: Player HP reaches 0
-  - [ ] Victory screen displays
-  - [ ] Game Over screen displays
-  - [ ] Restart option available
+#### FR-010: 胜负条件
+- **优先级**: P0 (关键)
+- **描述**: 游戏以胜利或失败告终
+- **验收标准**:
+  - [ ] 胜利：Boss HP降至0
+  - [ ] 失败：玩家HP降至0
+  - [ ] 显示胜利画面
+  - [ ] 显示游戏结束画面
+  - [ ] 提供重新开始选项
 
-#### FR-011: Trajectory Preview
-- **Priority**: P1 (Important)
-- **Description**: Shows predicted bullet path
-- **Acceptance Criteria**:
-  - [ ] Dashed line shows while aiming
-  - [ ] Predicts up to 3 bounces
-  - [ ] Updates in real-time
-  - [ ] Disappears after firing
+#### FR-011: 轨迹预览
+- **优先级**: P1 (重要)
+- **描述**: 显示预测子弹路径
+- **验收标准**:
+  - [ ] 瞄准时显示虚线
+  - [ ] 预测最多3次反弹
+  - [ ] 实时更新
+  - [ ] 射击后消失
 
-#### FR-012: Dash Ability
-- **Priority**: P2 (Nice to have)
-- **Description**: Space key triggers dash
-- **Acceptance Criteria**:
-  - [ ] Brief speed burst (2x normal)
-  - [ ] 0.5-second cooldown
-  - [ ] Invincibility during dash
-  - [ ] Motion blur effect
+#### FR-012: 冲刺能力
+- **优先级**: P2 (有则更好)
+- **描述**: 空格键触发冲刺
+- **验收标准**:
+  - [ ] 短暂速度爆发（2倍正常速度）
+  - [ ] 0.5秒冷却
+  - [ ] 冲刺期间无敌
+  - [ ] 运动模糊效果
 
-### Non-Functional Requirements
+### 非功能需求
 
-#### NFR-001: Performance
-- **Target**: 60 FPS on mid-range hardware
-- **Metrics**:
-  - Max 100 bullets on screen
-  - Max 1 boss + 10 echoes
-  - Memory usage < 100MB
+#### NFR-001: 性能
+- **目标**: 中档硬件上60 FPS
+- **指标**:
+  - 屏幕最多100颗子弹
+  - 最多1个Boss + 10个回声
+  - 内存使用 < 100MB
 
-#### NFR-002: Input Responsiveness
-- **Target**: < 16ms input lag
-- **Metrics**:
-  - Movement starts within 1 frame of input
-  - Shooting fires within 1 frame of click
+#### NFR-002: 输入响应
+- **目标**: < 16ms输入延迟
+- **指标**:
+  - 输入后1帧内开始移动
+  - 点击后1帧内射击
 
-#### NFR-003: Gameplay Duration
-- **Target**: 2-5 minutes per session
-- **Metrics**:
-  - Boss defeatable in 1-2 minutes (optimal play)
-  - Player death occurs in 30s-2min (suboptimal)
+#### NFR-003: 游戏时长
+- **目标**: 每局2-5分钟
+- **指标**:
+  - Boss可在1-2分钟内击败（最佳玩法）
+  - 玩家死亡发生在30秒-2分钟内（次佳）
 
-## Scenarios
+## 场景
 
-### Scenario 1: First Time Player
-**Actor**: New player
-**Goal**: Understand the game
-**Steps**:
-1. Player moves around
-2. Player shoots at wall
-3. Waits 3 seconds
-4. Sees echo fire
-5. Echo hits boss
-6. "Aha!" moment
+### 场景1：首次玩家
+**角色**: 新玩家
+**目标**: 理解游戏
+**步骤**:
+1. 玩家四处移动
+2. 玩家向墙壁射击
+3. 等待3秒
+4. 看到回声开火
+5. 回声命中Boss
+6. "啊哈！"时刻
 
-**Expected Result**: Player understands time echo mechanic
+**预期结果**: 玩家理解时间回声机制
 
-### Scenario 2: Optimal Play
-**Actor**: Experienced player
-**Goal**: Defeat boss quickly
-**Steps**:
-1. Shoot at wall while boss is on left
-2. Dash to right side
-3. Echo fires from left, player fires from right
-4. Boss takes 2 damage (dual hit)
-5. Repeat 5 times
-6. Boss defeated in 30 seconds
+### 场景2：最佳玩法
+**角色**: 经验丰富的玩家
+**目标**: 快速击败Boss
+**步骤**:
+1. 当Boss在左侧时向墙壁射击
+2. 冲刺到右侧
+3. 回声从左射击，玩家从右射击
+4. Boss受到2点伤害（双重命中）
+5. 重复5次
+6. 30秒内Boss被击败
 
-**Expected Result**: Fast victory using flanking strategy
+**预期结果**: 使用侧翼策略快速胜利
 
-### Scenario 3: Beginner Strategy
-**Actor**: Cautious player
-**Goal**: Defeat boss safely
-**Steps**:
-1. Shoot at wall
-2. Retreat to safe distance
-3. Wait for echo to hit
-4. Boss takes 1 damage
-5. Repeat 10 times
-6. Boss defeated in 2 minutes
+### 场景3：新手策略
+**角色**: 谨慎的玩家
+**目标**: 安全击败Boss
+**步骤**:
+1. 向墙壁射击
+2. 后退到安全距离
+3. 等待回声命中
+4. Boss受到1点伤害
+5. 重复10次
+6. 2分钟内Boss被击败
 
-**Expected Result**: Slow but safe victory
+**预期结果**: 慢但安全的胜利
 
-## Technical Constraints
+## 技术约束
 
-- **Engine**: Godot 4.6
-- **Language**: GDScript
-- **Resolution**: 800x600
-- **Target Platform**: Windows, Web (HTML5)
-- **Development Time**: 3 hours
+- **引擎**: Godot 4.6
+- **语言**: GDScript
+- **分辨率**: 800x600
+- **目标平台**: Windows, Web (HTML5)
+- **开发时间**: 3小时
 
-## Dependencies
+## 依赖项
 
-- Godot 4.6 engine
-- Kenney Digital Audio Pack (sounds)
-- No external plugins required
+- Godot 4.6引擎
+- Kenney数字音频包（音效）
+- 不需要外部插件

@@ -1,341 +1,341 @@
-# Core Gameplay Tasks
+# 核心玩法任务
 
-## Phase 1: Foundation (0:00-0:35)
+## 阶段1：基础 (0:00-0:35)
 
-### 1.1 Player Movement
-**Time**: 10 minutes
-**File**: `src/player.gd`, `scenes/player.tscn`
+### 1.1 玩家移动
+**时间**: 10分钟
+**文件**: `src/player.gd`, `scenes/player.tscn`
 
-- [ ] 1.1.1 Create Player scene with CharacterBody2D
-- [ ] 1.1.2 Implement WASD movement (200 px/s)
-- [ ] 1.1.3 Add mouse aim tracking (sprite rotation)
-- [ ] 1.1.4 Create basic player sprite (blue rectangle)
-- [ ] 1.1.5 Add collision shape (32x32)
+- [ ] 1.1.1 使用CharacterBody2D创建玩家场景
+- [ ] 1.1.2 实现WASD移动（200 px/s）
+- [ ] 1.1.3 添加鼠标瞄准追踪（精灵旋转）
+- [ ] 1.1.4 创建基础玩家精灵（蓝色矩形）
+- [ ] 1.1.5 添加碰撞形状（32x32）
 
-**Acceptance Criteria**:
-- Player moves smoothly in all directions
-- Sprite rotates to face mouse cursor
-- No input lag
-
----
-
-### 1.2 History Recording System
-**Time**: 15 minutes
-**File**: `src/player.gd`
-
-- [ ] 1.2.1 Create HistoryFrame class (position, aim_direction)
-- [ ] 1.2.2 Initialize history array (max 180 frames)
-- [ ] 1.2.3 Record position every _physics_process
-- [ ] 1.2.4 Record aim_direction every _physics_process
-- [ ] 1.2.5 Implement circular buffer (pop_front when full)
-- [ ] 1.2.6 Add get_frame_from_3s_ago() method
-
-**Acceptance Criteria**:
-- History stores exactly 3 seconds of data
-- Position and aim are synchronized
-- Memory usage is constant
+**验收标准**:
+- 玩家在所有方向平滑移动
+- 精灵旋转面向鼠标光标
+- 无输入延迟
 
 ---
 
-### 1.3 Echo Spawning
-**Time**: 10 minutes
-**File**: `src/echo.gd`, `scenes/echo.tscn`, `src/player.gd`
+### 1.2 历史记录系统
+**时间**: 15分钟
+**文件**: `src/player.gd`
 
-- [ ] 1.3.1 Create Echo scene with Area2D
-- [ ] 1.3.2 Add echo sprite (cyan, 50% transparent)
-- [ ] 1.3.3 Implement spawn_echo(spawn_pos, aim_dir) function
-- [ ] 1.3.4 Trigger echo spawn 3 seconds after player fires
-- [ ] 1.3.5 Echo auto-fires bullet after 0.1s delay
-- [ ] 1.3.6 Add ghost trail effect (optional)
+- [ ] 1.2.1 创建HistoryFrame类（位置、瞄准方向）
+- [ ] 1.2.2 初始化历史数组（最大180帧）
+- [ ] 1.2.3 每_physics_process记录位置
+- [ ] 1.2.4 每_physics_process记录瞄准方向
+- [ ] 1.2.5 实现循环缓冲区（满时pop_front）
+- [ ] 1.2.6 添加get_frame_from_3s_ago()方法
 
-**Acceptance Criteria**:
-- Echo appears exactly 3 seconds after fire
-- Echo spawns at correct historical position
-- Echo fires in correct direction
-
----
-
-## Phase 2: Combat (0:35-1:15)
-
-### 2.1 Bullet Physics
-**Time**: 15 minutes
-**File**: `src/bullet.gd`, `scenes/bullet.tscn`
-
-- [ ] 2.1.1 Create Bullet scene with Area2D
-- [ ] 2.1.2 Implement linear movement (velocity * delta)
-- [ ] 2.1.3 Add wall collision detection
-- [ ] 2.1.4 Implement mirror bounce (45° in = 45° out)
-- [ ] 2.1.5 Track bounce count (max 3)
-- [ ] 2.1.6 Increase speed 20% per bounce
-- [ ] 2.1.7 Destroy bullet after 3rd bounce
-
-**Acceptance Criteria**:
-- Bullets move at constant speed
-- Bounces follow mirror reflection
-- Speed increases correctly per bounce
+**验收标准**:
+- 历史存储恰好3秒数据
+- 位置和瞄准同步
+- 内存使用恒定
 
 ---
 
-### 2.2 Bullet Visuals
-**Time**: 5 minutes
-**File**: `src/bullet.gd`
+### 1.3 回声生成
+**时间**: 10分钟
+**文件**: `src/echo.gd`, `scenes/echo.tscn`, `src/player.gd`
 
-- [ ] 2.2.1 Create bullet sprite (8x8 white square)
-- [ ] 2.2.2 Change color per bounce count:
-  - [ ] 0 bounces: White
-  - [ ] 1 bounce: Yellow
-  - [ ] 2 bounces: Orange
-  - [ ] 3 bounces: Red
-- [ ] 2.2.3 Echo bullets use cyan color
-- [ ] 2.2.4 Add scale pulse on bounce (optional)
+- [ ] 1.3.1 使用Area2D创建回声场景
+- [ ] 1.3.2 添加回声精灵（青色，50%透明）
+- [ ] 1.3.3 实现spawn_echo(spawn_pos, aim_dir)函数
+- [ ] 1.3.4 玩家开火3秒后触发生成
+- [ ] 1.3.5 回声0.1秒延迟后自动开火
+- [ ] 1.3.6 添加幽灵拖尾效果（可选）
 
-**Acceptance Criteria**:
-- Color changes visibly per bounce
-- Echo bullets distinct from player bullets
+**验收标准**:
+- 回声恰好3秒后生成
+- 回声在正确历史位置生成
+- 回声在正确方向开火
 
 ---
 
-### 2.3 Trajectory Preview
-**Time**: 15 minutes
-**File**: `src/trajectory_preview.gd`
+## 阶段2：战斗 (0:35-1:15)
 
-- [ ] 2.3.1 Create TrajectoryPreview node with Line2D
-- [ ] 2.3.2 Implement raycast calculation for path prediction
-- [ ] 2.3.3 Calculate up to 3 bounce points
-- [ ] 2.3.4 Render dashed line while aiming
-- [ ] 2.3.5 Update in real-time as player aims
-- [ ] 2.3.6 Hide line after firing
+### 2.1 子弹物理
+**时间**: 15分钟
+**文件**: `src/bullet.gd`, `scenes/bullet.tscn`
 
-**Acceptance Criteria**:
-- Line shows while player is aiming
-- Accurately predicts bounce points
-- Performance: < 1ms calculation time
+- [ ] 2.1.1 使用Area2D创建子弹场景
+- [ ] 2.1.2 实现线性移动（velocity * delta）
+- [ ] 2.1.3 添加墙壁碰撞检测
+- [ ] 2.1.4 实现镜面反弹（45°入射 = 45°反射）
+- [ ] 2.1.5 追踪反弹次数（最多3次）
+- [ ] 2.1.6 每次反弹速度+20%
+- [ ] 2.1.7 第3次反弹后销毁子弹
+
+**验收标准**:
+- 子弹以恒定速度移动
+- 反弹遵循镜面反射
+- 每次反弹速度正确增加
+
+---
+
+### 2.2 子弹视觉
+**时间**: 5分钟
+**文件**: `src/bullet.gd`
+
+- [ ] 2.2.1 创建子弹精灵（8x8白色方块）
+- [ ] 2.2.2 每次反弹改变颜色：
+  - [ ] 0次反弹：白色
+  - [ ] 1次反弹：黄色
+  - [ ] 2次反弹：橙色
+  - [ ] 3次反弹：红色
+- [ ] 2.2.3 回声子弹使用青色
+- [ ] 2.2.4 反弹时添加缩放脉冲（可选）
+
+**验收标准**:
+- 每次反弹颜色可见变化
+- 回声子弹与玩家子弹区分明显
+
+---
+
+### 2.3 轨迹预览
+**时间**: 15分钟
+**文件**: `src/trajectory_preview.gd`
+
+- [ ] 2.3.1 使用Line2D创建TrajectoryPreview节点
+- [ ] 2.3.2 实现路径预测的raycast计算
+- [ ] 2.3.3 计算最多3个反弹点
+- [ ] 2.3.4 瞄准时渲染虚线
+- [ ] 2.3.5 玩家瞄准时实时更新
+- [ ] 2.3.6 射击后隐藏线条
+
+**验收标准**:
+- 玩家瞄准时显示线条
+- 准确预测反弹点
+- 性能：计算时间 < 1ms
 
 ---
 
 ### 2.4 Boss AI
-**Time**: 15 minutes
-**File**: `src/boss.gd`, `scenes/boss.tscn`
+**时间**: 15分钟
+**文件**: `src/boss.gd`, `scenes/boss.tscn`
 
-- [ ] 2.4.1 Create Boss scene with CharacterBody2D
-- [ ] 2.4.2 Add boss sprite (red rectangle, 64x64)
-- [ ] 2.4.3 Implement pursuit AI (move toward player at 80 px/s)
-- [ ] 2.4.4 Add "always face player" rotation
-- [ ] 2.4.5 Implement 10 HP health system
-- [ ] 2.4.6 Add contact damage (player loses 1 HP)
+- [ ] 2.4.1 使用CharacterBody2D创建Boss场景
+- [ ] 2.4.2 添加Boss精灵（红色矩形，64x64）
+- [ ] 2.4.3 实现追击AI（以80 px/s向玩家移动）
+- [ ] 2.4.4 添加"始终面向玩家"旋转
+- [ ] 2.4.5 实现10 HP生命系统
+- [ ] 2.4.6 添加接触伤害（玩家失去1 HP）
 
-**Acceptance Criteria**:
-- Boss moves toward player
-- Boss sprite faces player continuously
-- HP system works correctly
-
----
-
-## Phase 3: Game Loop (1:15-2:00)
-
-### 3.1 Damage System
-**Time**: 10 minutes
-**File**: `src/boss.gd`, `src/bullet.gd`
-
-- [ ] 3.1.1 Implement bullet-boss collision detection
-- [ ] 3.1.2 Single bullet deals 1 damage
-- [ ] 3.1.3 Detect simultaneous hits (0.1s window)
-- [ ] 3.1.4 Dual hit deals 2 damage
-- [ ] 3.1.5 Add visual feedback (flash red for 0.1s)
-- [ ] 3.1.6 Update Boss HP bar
-
-**Acceptance Criteria**:
-- Boss takes damage from bullets
-- Dual hit detection works
-- Visual feedback is clear
+**验收标准**:
+- Boss向玩家移动
+- Boss精灵持续面向玩家
+- HP系统正常工作
 
 ---
 
-### 3.2 Player Health
-**Time**: 5 minutes
-**File**: `src/player.gd`
+## 阶段3：游戏循环 (1:15-2:00)
 
-- [ ] 3.2.1 Implement 3 HP system
-- [ ] 3.2.2 Detect boss contact damage
-- [ ] 3.2.3 Add 1-second invincibility after hit
-- [ ] 3.2.4 Add visual feedback (flash red)
-- [ ] 3.2.5 Update Player HP bar
+### 3.1 伤害系统
+**时间**: 10分钟
+**文件**: `src/boss.gd`, `src/bullet.gd`
 
-**Acceptance Criteria**:
-- Player loses HP on boss contact
-- Invincibility frames work
-- Visual feedback is clear
+- [ ] 3.1.1 实现子弹-Boss碰撞检测
+- [ ] 3.1.2 单颗子弹造成1点伤害
+- [ ] 3.1.3 检测同时命中（0.1秒窗口）
+- [ ] 3.1.4 双重命中造成2点伤害
+- [ ] 3.1.5 添加视觉反馈（0.1秒红色闪烁）
+- [ ] 3.1.6 更新Boss血条
+
+**验收标准**:
+- Boss从子弹受到伤害
+- 双重命中检测工作
+- 视觉反馈清晰
 
 ---
 
-### 3.3 Win/Lose Conditions
-**Time**: 10 minutes
-**File**: `src/game_manager.gd`
+### 3.2 玩家生命值
+**时间**: 5分钟
+**文件**: `src/player.gd`
 
-- [ ] 3.3.1 Detect Boss death (HP reaches 0)
-- [ ] 3.3.2 Detect Player death (HP reaches 0)
-- [ ] 3.3.3 Show Victory screen (text + timer)
-- [ ] 3.3.4 Show Game Over screen
-- [ ] 3.3.5 Add restart functionality (R key or button)
+- [ ] 3.2.1 实现3 HP系统
+- [ ] 3.2.2 检测Boss接触伤害
+- [ ] 3.2.3 添加受伤后1秒无敌
+- [ ] 3.2.4 添加视觉反馈（红色闪烁）
+- [ ] 3.2.5 更新玩家血条
 
-**Acceptance Criteria**:
-- Victory triggers when Boss dies
-- Game Over triggers when Player dies
-- Can restart game
+**验收标准**:
+- Boss接触时玩家失去HP
+- 无敌帧工作
+- 视觉反馈清晰
+
+---
+
+### 3.3 胜负条件
+**时间**: 10分钟
+**文件**: `src/game_manager.gd`
+
+- [ ] 3.3.1 检测Boss死亡（HP降至0）
+- [ ] 3.3.2 检测玩家死亡（HP降至0）
+- [ ] 3.3.3 显示胜利画面（文字+计时器）
+- [ ] 3.3.4 显示游戏结束画面
+- [ ] 3.3.5 添加重新开始功能（R键或按钮）
+
+**验收标准**:
+- Boss死亡时触发胜利
+- 玩家死亡时触发游戏结束
+- 可以重新开始游戏
 
 ---
 
 ### 3.4 UI/HUD
-**Time**: 10 minutes
-**File**: `scenes/ui.tscn` or in `scenes/game.tscn`
+**时间**: 10分钟
+**文件**: `scenes/ui.tscn` 或 `scenes/game.tscn`
 
-- [ ] 3.4.1 Create Boss HP bar (ProgressBar)
-- [ ] 3.4.2 Create Player HP bar (ProgressBar)
-- [ ] 3.4.3 Add game timer (2-minute countdown)
-- [ ] 3.4.4 Style UI with readable colors
-- [ ] 3.4.5 Position UI in corners (don't block gameplay)
+- [ ] 3.4.1 创建Boss血条（ProgressBar）
+- [ ] 3.4.2 创建玩家血条（ProgressBar）
+- [ ] 3.4.3 添加游戏计时器（2分钟倒计时）
+- [ ] 3.4.4 使用可读颜色样式化UI
+- [ ] 3.4.5 将UI定位在角落（不遮挡游戏）
 
-**Acceptance Criteria**:
-- HP bars update in real-time
-- Timer counts down correctly
-- UI is readable and non-intrusive
-
----
-
-## Phase 4: Polish (2:00-2:50)
-
-### 4.1 Audio
-**Time**: 15 minutes
-**File**: `src/audio_manager.gd`, `assets/audio/`
-
-- [ ] 4.1.1 Import Kenney Digital Audio files
-- [ ] 4.1.2 Implement fire sound (laser_charge)
-- [ ] 4.1.3 Implement echo spawn sound (time_warp)
-- [ ] 4.1.4 Implement bounce sound (metallic_ping + pitch)
-- [ ] 4.1.5 Implement hit sounds (deep_impact, error_buzz)
-- [ ] 4.1.6 Add background music loop (30s ambient)
-
-**Acceptance Criteria**:
-- All key events have audio
-- Bounce pitch increases per bounce
-- Music loops seamlessly
+**验收标准**:
+- 血条实时更新
+- 计时器正确倒计时
+- UI可读且不突兀
 
 ---
 
-### 4.2 Screen Effects
-**Time**: 10 minutes
-**File**: `src/game_manager.gd`
+## 阶段4：打磨 (2:00-2:50)
 
-- [ ] 4.2.1 Add screen shake on dual hit (0.2s, 2px)
-- [ ] 4.2.2 Add flash effect on player damage
-- [ ] 4.2.3 Add chromatic aberration on echo spawn (optional)
-- [ ] 4.2.4 Add motion blur on dash (optional)
+### 4.1 音频
+**时间**: 15分钟
+**文件**: `src/audio_manager.gd`, `assets/audio/`
 
-**Acceptance Criteria**:
-- Effects enhance gameplay
-- Not overwhelming or distracting
-- Performance maintained at 60 FPS
+- [ ] 4.1.1 导入Kenney数字音频文件
+- [ ] 4.1.2 实现开火音效（laser_charge）
+- [ ] 4.1.3 实现回声生成音效（time_warp）
+- [ ] 4.1.4 实现反弹音效（metallic_ping + 音调）
+- [ ] 4.1.5 实现命中音效（deep_impact, error_buzz）
+- [ ] 4.1.6 添加背景音乐循环（30秒环境音）
 
----
-
-### 4.3 Visual Polish
-**Time**: 10 minutes
-**File**: Various
-
-- [ ] 4.3.1 Add arena background (dark gray)
-- [ ] 4.3.2 Style walls (steel gray rectangles)
-- [ ] 4.3.3 Add player glow effect (optional)
-- [ ] 4.3.4 Add boss glow effect (optional)
-- [ ] 4.3.5 Ensure 60 FPS with all effects
-
-**Acceptance Criteria**:
-- Visuals are clear and readable
-- Color palette matches design doc
-- Performance at 60 FPS
+**验收标准**:
+- 所有关键事件有音频
+- 每次反弹音调增加
+- 音乐无缝循环
 
 ---
 
-### 4.4 Bug Fixes
-**Time**: 15 minutes
-**File**: Various
+### 4.2 屏幕效果
+**时间**: 10分钟
+**文件**: `src/game_manager.gd`
 
-- [ ] 4.4.1 Fix echo spawn timing issues (frame-perfect)
-- [ ] 4.4.2 Fix bounce angle edge cases (corners)
-- [ ] 4.4.3 Fix collision detection (bullet through wall)
-- [ ] 4.4.4 Fix UI update lag
-- [ ] 4.4.5 Test memory leaks (none expected)
+- [ ] 4.2.1 双重命中时添加屏幕震动（0.2秒，2px）
+- [ ] 4.2.2 玩家受伤时添加闪烁效果
+- [ ] 4.2.3 回声生成时添加色差效果（可选）
+- [ ] 4.2.4 冲刺时添加运动模糊（可选）
 
-**Acceptance Criteria**:
-- No game-breaking bugs
-- Smooth 60 FPS gameplay
-- No crashes or freezes
-
----
-
-## Phase 5: Build (2:50-3:00)
-
-### 5.1 Export
-**Time**: 5 minutes
-**File**: Export presets
-
-- [ ] 5.1.1 Configure Windows export preset
-- [ ] 5.1.2 Configure Web/HTML5 export preset
-- [ ] 5.1.3 Export Windows build (.exe)
-- [ ] 5.1.4 Export Web build (.html + .js)
-- [ ] 5.1.5 Test both exports run correctly
-
-**Acceptance Criteria**:
-- Both builds export without errors
-- Games run outside editor
-- No missing assets
+**验收标准**:
+- 效果增强游戏
+- 不压倒性或分散注意力
+- 性能保持60 FPS
 
 ---
 
-### 5.2 Itch.io Upload
-**Time**: 5 minutes
-**File**: Browser
+### 4.3 视觉打磨
+**时间**: 10分钟
+**文件**: 多个
 
-- [ ] 5.2.1 Create itch.io page for Temporal Echo
-- [ ] 5.2.2 Upload Windows build
-- [ ] 5.2.3 Upload Web build (set as primary)
-- [ ] 5.2.4 Add game description (one-sentence pitch)
-- [ ] 5.2.5 Add screenshots (optional)
-- [ ] 5.2.6 Submit to TriJam #358
+- [ ] 4.3.1 添加竞技场背景（深灰）
+- [ ] 4.3.2 样式化墙壁（钢灰矩形）
+- [ ] 4.3.3 添加玩家发光效果（可选）
+- [ ] 4.3.4 添加Boss发光效果（可选）
+- [ ] 4.3.5 确保所有效果下60 FPS
 
-**Acceptance Criteria**:
-- Page is live and public
-- Builds are downloadable/playable
-- Successfully submitted to jam
+**验收标准**:
+- 视觉清晰可读
+- 颜色符合设计文档
+- 性能60 FPS
 
 ---
 
-## Summary
+### 4.4 Bug修复
+**时间**: 15分钟
+**文件**: 多个
 
-| Phase | Time | Tasks | Deliverables |
-|-------|------|-------|--------------|
-| 1. Foundation | 0:35 | 16 | Player moves, Echo spawns |
-| 2. Combat | 0:40 | 17 | Bullets bounce, Boss chases |
-| 3. Game Loop | 0:45 | 15 | Can win/lose, UI works |
-| 4. Polish | 0:50 | 18 | Audio, effects, bugs fixed |
-| 5. Build | 0:10 | 11 | Exported, on itch.io |
-| **Total** | **3:00** | **77 tasks** | **Complete game** |
+- [ ] 4.4.1 修复回声生成时机问题（帧完美）
+- [ ] 4.4.2 修复反弹角度边界情况（角落）
+- [ ] 4.4.3 修复碰撞检测（子弹穿墙）
+- [ ] 4.4.4 修复UI更新延迟
+- [ ] 4.4.5 测试内存泄漏（预期无）
 
-## Contingency Plans
+**验收标准**:
+- 无游戏破坏性Bug
+- 流畅60 FPS游戏
+- 无崩溃或冻结
 
-If behind schedule, cut in this order:
+---
 
-| Priority | Feature | Time Saved |
+## 阶段5：打包 (2:50-3:00)
+
+### 5.1 导出
+**时间**: 5分钟
+**文件**: 导出预设
+
+- [ ] 5.1.1 配置Windows导出预设
+- [ ] 5.1.2 配置Web/HTML5导出预设
+- [ ] 5.1.3 导出Windows构建（.exe）
+- [ ] 5.1.4 导出Web构建（.html + .js）
+- [ ] 5.1.5 测试两个构建正确运行
+
+**验收标准**:
+- 两个构建无错误导出
+- 游戏在编辑器外运行
+- 无缺失资源
+
+---
+
+### 5.2 Itch.io上传
+**时间**: 5分钟
+**文件**: 浏览器
+
+- [ ] 5.2.1 为时间回声创建itch.io页面
+- [ ] 5.2.2 上传Windows构建
+- [ ] 5.2.3 上传Web构建（设为首要）
+- [ ] 5.2.4 添加游戏描述（一句话介绍）
+- [ ] 5.2.5 添加截图（可选）
+- [ ] 5.2.6 提交到TriJam #358
+
+**验收标准**:
+- 页面上线且公开
+- 构建可下载/可玩
+- 成功提交到GameJam
+
+---
+
+## 总结
+
+| 阶段 | 时间 | 任务 | 产出 |
+|------|------|------|------|
+| 1. 基础 | 0:35 | 16 | 玩家移动，回声生成 |
+| 2. 战斗 | 0:40 | 17 | 子弹反弹，Boss追击 |
+| 3. 游戏循环 | 0:45 | 15 | 能赢能输，UI工作 |
+| 4. 打磨 | 0:50 | 18 | 音频，效果，Bug修复 |
+| 5. 打包 | 0:10 | 11 | 已导出，在itch.io |
+| **总计** | **3:00** | **77任务** | **完整游戏** |
+
+## 应急计划
+
+如果进度落后，按此顺序削减：
+
+| 优先级 | 功能 | 节省时间 |
 |----------|---------|------------|
-| 1 | Trajectory preview | 15 min |
-| 2 | Screen effects | 10 min |
-| 3 | Dash ability | 10 min |
-| 4 | Bounce speed increase | 5 min |
-| 5 | Audio | 15 min |
-| 6 | Echo trail effect | 5 min |
+| 1 | 轨迹预览 | 15分钟 |
+| 2 | 屏幕效果 | 10分钟 |
+| 3 | 冲刺能力 | 10分钟 |
+| 4 | 反弹加速 | 5分钟 |
+| 5 | 音频 | 15分钟 |
+| 6 | 回声拖尾效果 | 5分钟 |
 
-**Minimum Viable Product** (if 1 hour left):
-- Player moves and shoots
-- Bullets bounce once
-- Echo spawns after 3s
-- Boss has HP
-- Can win/lose
+**最小可行产品**（如果只剩1小时）：
+- 玩家移动和射击
+- 子弹反弹一次
+- 回声3秒后生成
+- Boss有HP
+- 能赢能输
