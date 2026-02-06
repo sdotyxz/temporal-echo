@@ -1,57 +1,57 @@
-# Temporal Echo
+# 时间回声 (Temporal Echo)
 
-**TriJam #358 Entry** - A 3-hour game jam game featuring temporal echo mechanics.
+**TriJam #358 参赛作品** - 一款具有时间回声机制的3小时GameJam游戏。
 
-## One-Sentence Pitch
+## 一句话介绍
 
-> "Fire your temporal echo - 3 seconds later, your past self rebounds from walls to fight alongside you."
+> "发射你的时间回声——3秒后，过去的你从墙边反弹回来与你并肩作战。"
 
-## Core Mechanic
+## 核心机制
 
-Players shoot "temporal echoes" that don't interact with enemies immediately. After a 3-second delay, a ghost of the player appears at their firing position and fires the same shot, creating cross-fire opportunities with the current player.
+玩家发射"时间回声"，这些回声不会立即与敌人互动。3秒后，玩家的幽灵出现在发射位置并发射同样的子弹，创造与当前玩家交叉火力的机会。
 
-## Gameplay Loop
+## 游戏循环
 
-1. **Aim & Fire** → Shoot at walls to set up rebound angles
-2. **Move** → Position yourself for the cross-fire moment
-3. **Temporal Echo Activates** → 3-second-ago self fires from past position
-4. **Coordinated Strike** → Present + Past fire simultaneously at the enemy
+1. **瞄准射击** → 向墙壁射击设置反弹角度
+2. **移动** → 为交叉火力时刻定位
+3. **时间回声激活** → 3秒前的自己在过去位置开火
+4. **协同打击** → 现在的你和过去的你同时射击敌人
 
-## Tech Stack
+## 技术栈
 
-- **Engine**: Godot 4.6
-- **Language**: GDScript
-- **Resolution**: 800x600
-- **Target FPS**: 60
+- **引擎**: Godot 4.6
+- **语言**: GDScript
+- **分辨率**: 800x600
+- **目标帧率**: 60
 
-## Project Structure
+## 项目结构
 
 ```
 TemporalEcho/
-├── openspec/              # OpenSpec documentation
+├── openspec/              # OpenSpec 文档
 │   └── changes/
 │       └── core-gameplay/
-│           ├── proposal.md       # Game concept
-│           ├── specs/            # Requirements
-│           ├── design.md         # Technical design
-│           └── tasks.md          # 92 implementation tasks
-├── src/                   # Source code (to be implemented)
-├── scenes/                # Godot scenes (to be implemented)
-├── assets/                # Game assets (to be implemented)
-└── project.godot          # Godot project file
+│           ├── proposal.md       # 游戏概念
+│           ├── specs/            # 需求规格
+│           ├── design.md         # 技术架构
+│           └── tasks.md          # 77个实施任务
+├── src/                   # 源代码（待实现）
+├── scenes/                # Godot 场景（待实现）
+├── assets/                # 游戏资源（待实现）
+└── project.godot          # Godot 项目文件
 ```
 
-## Design Documents
+## 设计文档
 
-- **[Proposal](openspec/changes/core-gameplay/proposal.md)** - Game concept and overview
-- **[Requirements](openspec/changes/core-gameplay/specs/requirements.md)** - Detailed specifications
-- **[Design](openspec/changes/core-gameplay/design.md)** - Technical architecture
-- **[Tasks](openspec/changes/core-gameplay/tasks.md)** - 92 implementation tasks with timeline
+- **[提案](openspec/changes/core-gameplay/proposal.md)** - 游戏概念与概述
+- **[需求](openspec/changes/core-gameplay/specs/requirements.md)** - 详细规格说明
+- **[设计](openspec/changes/core-gameplay/design.md)** - 技术架构
+- **[任务](openspec/changes/core-gameplay/tasks.md)** - 77个实施任务与时间表
 
-## Status
+## 当前状态
 
-⏳ **Design Phase** - Reviewing OpenSpec documentation before implementation
+⏳ **设计阶段** - 审查 OpenSpec 文档，准备实施
 
-## License
+## 许可证
 
-MIT License - See [LICENSE](LICENSE) for details
+MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
