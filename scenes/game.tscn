@@ -24,7 +24,9 @@ z_index = -1
 script = ExtResource("2_ai")
 player = NodePath("../Player")
 
-[node name="TestInfo" type="Label" parent="."]
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TestInfo" type="Label" parent="UI"]
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 300.0
@@ -32,7 +34,7 @@ offset_bottom = 100.0
 theme_override_font_sizes/font_size = 24
 text = "AI测试: 玩家移动"
 
-[node name="TimerDisplay" type="Label" parent="."]
+[node name="TimerDisplay" type="Label" parent="UI"]
 offset_left = 20.0
 offset_top = 60.0
 offset_right = 200.0
