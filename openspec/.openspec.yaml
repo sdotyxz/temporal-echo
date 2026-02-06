@@ -5,6 +5,13 @@ project:
   description: TriJam #358 - Temporal echo mechanics game
   version: 1.0.0
 
+context: |
+  语言：中文（简体）
+  所有产出物必须用简体中文撰写。
+  
+  技术栈：Godot 4.6, GDScript
+  项目类型：2D 游戏
+
 changes:
   base_dir: openspec/changes
 
@@ -13,9 +20,9 @@ specs:
 
 defaults:
   author: sdon
-  
+
 git:
   auto_commit: false
-  
+
 validation:
   strict: false
