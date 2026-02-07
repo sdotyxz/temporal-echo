@@ -3,31 +3,30 @@ extends Node
 @export var player: CharacterBody2D
 
 var timer: float = 0.0
-var phase: int = 0
 
-var history_trail: Line2D
-var current_trail: Line2D
+# 存储轨迹点
+var current_points: Array[Vector2] = []
+var history_points: Array[Vector2] = []
+const MAX_POINTS: int = 180  # 3秒 @ 60fps
+
+# 3秒前的位置标记
+var echo_marker: Node2D
 
 func _ready():
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
 	
-	# 创建轨迹线
-	history_trail = Line2D.new()
-	history_trail.width = 4
-	history_trail.default_color = Color(0, 1, 1, 0.5)  # 青色半透明
-	history_trail.name = "HistoryTrail"
-	get_parent().add_child(history_trail)
+	# 创建3秒前位置的标记
+	echo_marker = Node2D.new()
+	echo_marker.name = "EchoMarker"
+	add_child(echo_marker)
 	
-	current_trail = Line2D.new()
-	current_trail.width = 4
-	current_trail.default_color = Color(1, 1, 0, 0.8)  # 黄色
-	current_trail.name = "CurrentTrail"
-	get_parent().add_child(current_trail)
+	# 设置节点绘制
+	set_notify_transform(true)
 	
 	print("🧪 历史记录系统测试")
-	print("📊 青色线 = 3秒前的位置")
-	print("📊 黄色线 = 当前位置")
+	print("📊 黄色 = 当前位置")
+	print("📊 青色 = 3秒前的位置")
 
 func _physics_process(delta: float) -> void:
 	if player == null:
@@ -42,30 +41,61 @@ func _physics_process(delta: float) -> void:
 	var y = sin(angle) * radius
 	
 	# 设置玩家位置
-	player.position = Vector2(400 + x, 300 + y)
+	var new_pos = Vector2(400 + x, 300 + y)
+	player.position = new_pos
 	player.rotation = angle + PI / 2
 	
 	# 记录当前轨迹
-	current_trail.add_point(player.position)
-	if current_trail.get_point_count() > 180:
-		current_trail.remove_point(0)
+	current_points.append(new_pos)
+	if current_points.size() > MAX_POINTS:
+		current_points.pop_front()
 	
-	# 显示历史轨迹（延迟3秒）
+	# 显示3秒前的位置
 	if timer > 3.0:
 		if player.position_history.size() > 0:
 			var old_pos = player.position_history[0].position
-			history_trail.add_point(old_pos)
-			if history_trail.get_point_count() > 180:
-				history_trail.remove_point(0)
+			history_points.append(old_pos)
+			if history_points.size() > MAX_POINTS:
+				history_points.pop_front()
+			
+			# 更新标记位置
+			echo_marker.position = old_pos
+	
+	# 触发重绘
+	queue_redraw()
 	
 	# 更新UI
 	_update_ui()
+
+func _draw():
+	# 绘制当前轨迹（黄色）
+	if current_points.size() >= 2:
+		for i in range(current_points.size() - 1):
+			draw_line(current_points[i], current_points[i + 1], Color.YELLOW, 3.0)
+	
+	# 绘制历史轨迹（青色）
+	if history_points.size() >= 2:
+		for i in range(history_points.size() - 1):
+			draw_line(history_points[i], history_points[i + 1], Color.CYAN, 3.0)
+	
+	# 绘制当前位置标记（黄色方块）
+	if player:
+		draw_rect(Rect2(player.position - Vector2(8, 8), Vector2(16, 16)), Color.YELLOW, true)
+		draw_rect(Rect2(player.position - Vector2(5, 5), Vector2(10, 10)), Color.WHITE, true)
+	
+	# 绘制3秒前位置标记（青色方块）
+	if echo_marker and timer > 3.0:
+		draw_rect(Rect2(echo_marker.position - Vector2(8, 8), Vector2(16, 16)), Color.CYAN, true)
+		draw_rect(Rect2(echo_marker.position - Vector2(5, 5), Vector2(10, 10)), Color.WHITE, true)
 
 func _update_ui():
 	var info = get_node_or_null("../UI/TestInfo")
 	if info:
 		var has_history = timer > 3.0 and player.position_history.size() > 0
 		if has_history:
-			info.text = "🧪 历史记录测试\n✅ 青色=3秒前 黄色=现在"
+			var dist = 0.0
+			if player.position_history.size() > 0:
+				dist = player.position.distance_to(player.position_history[0].position)
+			info.text = "🧪 历史记录测试\n✅ 黄=现在 青=3秒前\n📏 距离: %.0f px" % dist
 		else:
-			info.text = "🧪 历史记录测试\n⏳ 记录中..."
+			info.text = "🧪 历史记录测试\n⏳ 记录中... %d/%d" % [current_points.size(), MAX_POINTS]
