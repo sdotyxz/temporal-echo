@@ -45,7 +45,9 @@ func _physics_process(delta: float) -> void:
 		_end_test()
 
 func _set_random_direction():
-	var dirs = [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]
+	var dirs = [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN, 
+				Vector2(1, 1).normalized(), Vector2(-1, 1).normalized(),
+				Vector2(1, -1).normalized(), Vector2(-1, -1).normalized()]
 	current_dir = dirs[randi() % dirs.size()]
 
 func _apply_movement_input():

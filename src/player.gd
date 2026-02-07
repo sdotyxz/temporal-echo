@@ -43,6 +43,10 @@ func _physics_process(delta: float) -> void:
 	# 移动
 	move_and_slide()
 	
+	# 限制在屏幕内
+	position.x = clamp(position.x, 50, 750)
+	position.y = clamp(position.y, 50, 550)
+	
 	# 面向鼠标
 	_aim_at_mouse()
 	
