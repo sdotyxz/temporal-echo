@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://echo1"]
+
+[ext_resource type="Script" path="res://src/echo.gd" id="1_echo"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_echo"]
+
+[node name="Echo" type="Node2D"]
+script = ExtResource("1_echo")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.3, 0.8, 1, 0.5)
+scale = Vector2(32, 32)
+texture = SubResource("PlaceholderTexture2D_echo")

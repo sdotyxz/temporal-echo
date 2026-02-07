@@ -46,8 +46,16 @@ func _physics_process(delta: float) -> void:
 	# 面向鼠标
 	_aim_at_mouse()
 	
-	# 记录历史
-	_record_history()
+	# 记录历史（带射击状态）
+	var did_shoot := Input.is_action_just_pressed("fire")
+	_record_history_with_shoot(did_shoot)
+	
+	# 处理射击
+	if did_shoot:
+		_shoot()
+	
+	# 检查回声生成
+	_process_echo_spawn()
 
 func _aim_at_mouse() -> void:
 	var mouse_pos := get_global_mouse_position()
@@ -72,3 +80,48 @@ func get_frame_from_3s_ago() -> HistoryFrame:
 	
 	# 返回3秒前的帧（数组最前面）
 	return position_history[0]
+
+# 记录历史（带射击状态）
+var shoot_history: Array[bool] = []
+
+func _record_history_with_shoot(did_shoot: bool) -> void:
+	var aim_dir := Vector2.RIGHT.rotated(rotation)
+	var frame := HistoryFrame.new(position, aim_dir, did_shoot)
+	position_history.append(frame)
+	shoot_history.append(did_shoot)
+	
+	# 循环缓冲区
+	if position_history.size() > HISTORY_SIZE:
+		position_history.pop_front()
+		shoot_history.pop_front()
+
+# 发射子弹
+func _shoot() -> void:
+	print("🔫 玩家发射!")
+	var bullet_scene = load("res://scenes/bullet.tscn")
+	var bullet = bullet_scene.instantiate()
+	bullet.global_position = global_position
+	bullet.velocity = Vector2.RIGHT.rotated(rotation) * bullet.SPEED
+	bullet.is_echo = false
+	get_tree().current_scene.add_child(bullet)
+
+# 处理回声生成
+var echo_spawn_index: int = 0
+
+func _process_echo_spawn() -> void:
+	# 检查3秒前的射击记录
+	if shoot_history.size() >= HISTORY_SIZE:
+		if shoot_history[0] and echo_spawn_index < position_history.size():
+			_spawn_echo()
+			shoot_history[0] = false  # 标记为已处理
+
+func _spawn_echo() -> void:
+	print("👻 生成回声!")
+	var old_frame = position_history[0]
+	
+	var echo_scene = load("res://scenes/echo.tscn")
+	var echo = echo_scene.instantiate()
+	echo.spawn_position = old_frame.position
+	echo.aim_direction = old_frame.aim_direction
+	
+	get_tree().current_scene.add_child(echo)
