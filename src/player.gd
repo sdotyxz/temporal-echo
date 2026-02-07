@@ -24,7 +24,16 @@ func _ready():
 	print("🎯 玩家准备就绪")
 	print("📝 历史记录系统初始化 (", HISTORY_SIZE, " 帧)")
 
+var test_mode: bool = false
+var test_target_position: Vector2 = Vector2.ZERO
+
 func _physics_process(delta: float) -> void:
+	if test_mode:
+		# 测试模式：不处理输入，只记录历史
+		_aim_at_mouse()
+		_record_history()
+		return
+	
 	# 获取移动输入
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	

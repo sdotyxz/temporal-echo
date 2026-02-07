@@ -16,6 +16,11 @@ func _ready():
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
 	
+	# 启用玩家测试模式
+	if player and player.has_method("set"):
+		player.test_mode = true
+		print("✅ 玩家测试模式已启用")
+	
 	# 创建3秒前位置的标记
 	echo_marker = Node2D.new()
 	echo_marker.name = "EchoMarker"
@@ -28,7 +33,7 @@ func _ready():
 	print("📊 黄色 = 当前位置")
 	print("📊 青色 = 3秒前的位置")
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	if player == null:
 		return
 	
@@ -40,10 +45,14 @@ func _physics_process(delta: float) -> void:
 	var x = cos(angle) * radius
 	var y = sin(angle) * radius
 	
-	# 设置玩家位置
+	# 设置玩家位置（使用全局坐标）
 	var new_pos = Vector2(400 + x, 300 + y)
-	player.position = new_pos
-	player.rotation = angle + PI / 2
+	player.global_position = new_pos
+	player.global_rotation = angle + PI / 2
+	
+	# 强制记录历史（手动调用）
+	if player.has_method("_record_history"):
+		player._record_history()
 	
 	# 记录当前轨迹
 	current_points.append(new_pos)
