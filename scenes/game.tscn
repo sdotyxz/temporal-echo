@@ -1,8 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://game1"]
 
 [ext_resource type="PackedScene" uid="uid://player1" path="res://scenes/player.tscn" id="1_player"]
-[ext_resource type="Script" path="res://src/ai_test_controller.gd" id="2_ai"]
-[ext_resource type="Script" path="res://src/history_test_controller.gd" id="3_history"]
+[ext_resource type="Script" path="res://src/history_visual_test.gd" id="2_test"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ai"]
 
@@ -21,12 +20,16 @@ offset_bottom = 600.0
 color = Color(0.1, 0.1, 0.15, 1)
 z_index = -1
 
+[node name="TestController" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("2_test")
+player = NodePath("../Player")
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="TestInfo" type="Label" parent="UI"]
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 400.0
-offset_bottom = 60.0
+offset_bottom = 100.0
 theme_override_font_sizes/font_size = 24
-text = "🎮 玩家移动测试"
+text = "🧪 历史记录测试\n⏳ 记录中..."
