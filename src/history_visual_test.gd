@@ -39,23 +39,11 @@ func _process(delta: float) -> void:
 	
 	timer += delta
 	
-	# 圆周运动
-	var angle = timer * 1.5
-	var radius = 150.0
-	var x = cos(angle) * radius
-	var y = sin(angle) * radius
-	
-	# 设置玩家位置（使用全局坐标）
-	var new_pos = Vector2(400 + x, 300 + y)
-	player.global_position = new_pos
-	player.global_rotation = angle + PI / 2
-	
-	# 强制记录历史（手动调用）
-	if player.has_method("_record_history"):
-		player._record_history()
+	# 只记录轨迹和绘制，不控制玩家移动（由AIController控制）
+	var current_pos = player.global_position
 	
 	# 记录当前轨迹
-	current_points.append(new_pos)
+	current_points.append(current_pos)
 	if current_points.size() > MAX_POINTS:
 		current_points.pop_front()
 	

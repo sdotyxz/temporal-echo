@@ -32,9 +32,13 @@ func _physics_process(delta: float) -> void:
 		direction_timer = 0.0
 		_change_direction()
 	
-	# 应用移动输入 (200 px/s)
-	player.velocity = current_direction * 200.0
-	player.move_and_slide()
+	# 直接设置位置（绕过move_and_slide）
+	var speed = 200.0
+	player.position += current_direction * speed * delta
+	
+	# 边界限制
+	player.position.x = clamp(player.position.x, 50, 750)
+	player.position.y = clamp(player.position.y, 50, 550)
 	
 	# 让玩家面向移动方向
 	if current_direction != Vector2.ZERO:
