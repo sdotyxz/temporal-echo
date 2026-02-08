@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Temporal Echo"
 config/description="TriJam #358 - 3 hour game jam entry"
-run/main_scene="res://scenes/game.tscn"
+run/main_scene="res://scenes/title_screen.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [display]
