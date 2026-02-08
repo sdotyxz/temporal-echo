@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <!-- 背景渐变 -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="50%" stop-color="#0f0518"/>
+      <stop offset="100%" stop-color="#050208"/>
+    </radialGradient>
+    
+    <!-- 发光滤镜 -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+
+  <!-- 星星 -->
+  <g fill="#6a89cc" opacity="0.6">
+    <circle cx="100" cy="50" r="1.5"/>
+    <circle cx="200" cy="80" r="1"/>
+    <circle cx="300" cy="40" r="2"/>
+    <circle cx="500" cy="100" r="1.5"/>
+    <circle cx="600" cy="60" r="1"/>
+    <circle cx="700" cy="90" r="2"/>
+    <circle cx="150" cy="150" r="1"/>
+    <circle cx="650" cy="180" r="1.5"/>
+    <circle cx="50" cy="200" r="1"/>
+    <circle cx="750" cy="220" r="1.5"/>
+    <circle cx="120" cy="300" r="1"/>
+    <circle cx="680" cy="350" r="1.5"/>
+    <circle cx="80" cy="400" r="1"/>
+    <circle cx="720" cy="450" r="1"/>
+    <circle cx="200" cy="500" r="1.5"/>
+    <circle cx="600" cy="520" r="1"/>
+    <circle cx="300" cy="550" r="2"/>
+    <circle cx="500" cy="560" r="1.5"/>
+  </g>
+
+  <!-- 中心光环 -->
+  <circle cx="400" cy="300" r="120" fill="rgba(255,100,50,0.2)" filter="url(#glow)"/>
+
+  <!-- 子弹轨迹 -->
+  <polyline points="320,300 500,250 550,320 480,350" 
+            fill="none" stroke="#fff" stroke-width="3"/>
+
+  <!-- 子弹 -->
+  <circle cx="480" cy="350" r="6" fill="#ff6b35" filter="url(#glow)"/>
+
+  <!-- 回声 -->
+  <rect x="384" y="184" width="32" height="32" 
+        fill="#00ffff" opacity="0.6" transform="rotate(-10 400 200)" filter="url(#glow)"/>
+
+  <!-- 玩家 -->
+  <rect x="304" y="284" width="32" height="32" 
+        fill="#3498db" stroke="#5dade2" stroke-width="2" 
+        transform="rotate(-15 320 300)" filter="url(#glow)"/>
+
+  <!-- Boss -->
+  <rect x="568" y="268" width="64" height="64" 
+        fill="#e74c3c" stroke="#ff7f7f" stroke-width="3" 
+        transform="rotate(10 600 300)" filter="url(#glow)"/>
+
+  <!-- 标题 -->
+  <text x="400" y="100" text-anchor="middle" 
+        font-family="Arial, sans-serif" font-size="48" font-weight="bold" 
+        fill="#f39c12" filter="url(#glow)">🔥 TEMPORAL ECHO 🔥</text>
+
+  <!-- 副标题 -->
+  <text x="400" y="140" text-anchor="middle" 
+        font-family="Arial, sans-serif" font-size="24" 
+        fill="#95a5a6">时间回声 - TriJam #358</text>
+
+  <!-- 底部描述 -->
+  <text x="400" y="520" text-anchor="middle" 
+        font-family="Arial, sans-serif" font-size="18" 
+        fill="#7f8c8d">射击 · 反弹 · 时间回声</text>
+  <text x="400" y="550" text-anchor="middle" 
+        font-family="Arial, sans-serif" font-size="16" 
+        fill="#7f8c8d">Shoot · Bounce · Echo</text>
+
+  <!-- 装饰线条 -->
+  <line x1="250" y1="480" x2="550" y2="480" 
+         stroke="#34495e" stroke-width="1" opacity="0.5"/>
+</svg>
