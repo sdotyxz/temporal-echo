@@ -9,8 +9,23 @@ func _ready():
 	_create_background()
 	_create_ui()
 	
+	# 播放标题界面BGM
+	_play_title_bgm()
+	
 	# 自动开始游戏（3秒后）
 	_auto_start_game()
+
+func _play_title_bgm():
+	# 创建临时音频播放器播放BGM
+	var bgm_player = AudioStreamPlayer.new()
+	bgm_player.name = "TitleBGM"
+	bgm_player.volume_db = -15.0
+	add_child(bgm_player)
+	
+	if FileAccess.file_exists("res://assets/audio/bgm.mp3"):
+		bgm_player.stream = load("res://assets/audio/bgm.mp3")
+		bgm_player.play()
+		print("🎵 播放标题界面BGM")
 
 func _auto_start_game():
 	print("⏱️ 3秒后自动开始游戏...")
