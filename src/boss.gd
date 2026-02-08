@@ -53,6 +53,9 @@ func _ready():
 	var texture = ImageTexture.create_from_image(image)
 	sprite.texture = texture
 	
+	# 添加发光效果
+	_add_glow_effect()
+	
 	# 创建碰撞形状
 	collision_shape = CollisionShape2D.new()
 	collision_shape.name = "CollisionShape2D"
@@ -67,6 +70,25 @@ func _ready():
 	
 	# 创建血条
 	_create_health_bar()
+
+func _add_glow_effect():
+	# 为Boss添加发光材质
+	if sprite:
+		var shader = Shader.new()
+		shader.code = """
+		shader_type canvas_item;
+		
+		void fragment() {
+			vec4 color = texture(TEXTURE, UV);
+			// 添加红色边缘发光
+			float glow = smoothstep(0.3, 0.5, color.a) * 0.6;
+			COLOR = vec4(color.rgb + vec3(0.8, 0.1, 0.1) * glow, color.a);
+		}
+		"""
+		var material = ShaderMaterial.new()
+		material.shader = shader
+		sprite.material = material
+		print("✨ Boss发光效果已添加")
 
 func _create_health_bar():
 	# 血条背景

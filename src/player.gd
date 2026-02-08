@@ -36,8 +36,30 @@ func _ready():
 	print("📝 历史记录系统初始化 (", HISTORY_SIZE, " 帧)")
 	print("❤️ 玩家 HP: ", hp, "/", MAX_HP)
 	
+	# 添加发光效果
+	_add_glow_effect()
+	
 	# 创建玩家血条
 	_create_health_bar()
+
+func _add_glow_effect():
+	# 为精灵添加发光材质
+	if sprite:
+		var shader = Shader.new()
+		shader.code = """
+		shader_type canvas_item;
+		
+		void fragment() {
+			vec4 color = texture(TEXTURE, UV);
+			// 添加边缘发光
+			float glow = smoothstep(0.3, 0.5, color.a) * 0.5;
+			COLOR = vec4(color.rgb + vec3(0.2, 0.5, 0.8) * glow, color.a);
+		}
+		"""
+		var material = ShaderMaterial.new()
+		material.shader = shader
+		sprite.material = material
+		print("✨ 玩家发光效果已添加")
 
 func _create_health_bar():
 	# 创建 CanvasLayer 作为UI容器

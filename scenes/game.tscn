@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://game1"]
+[gd_scene load_steps=8 format=3 uid="uid://game1"]
 
 [ext_resource type="PackedScene" uid="uid://player1" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://src/ai_echo_test.gd" id="2_ai_test"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/trajectory_preview.gd" id="4_trajectory"]
 [ext_resource type="PackedScene" uid="uid://boss1" path="res://scenes/boss.tscn" id="5_boss"]
 [ext_resource type="Script" path="res://src/game_manager.gd" id="6_manager"]
+[ext_resource type="PackedScene" uid="uid://audio1" path="res://scenes/audio_manager.tscn" id="7_audio"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
 size = Vector2(900, 40)
@@ -18,7 +19,7 @@ size = Vector2(40, 700)
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 800.0
 offset_bottom = 600.0
-color = Color(0.08, 0.08, 0.12, 1)
+color = Color(0.12, 0.12, 0.16, 1)
 z_index = -1
 
 [node name="Walls" type="Node" parent="."]
@@ -36,7 +37,7 @@ offset_left = -450.0
 offset_top = -20.0
 offset_right = 450.0
 offset_bottom = 20.0
-color = Color(0.3, 0.35, 0.4, 1)
+color = Color(0.45, 0.48, 0.52, 1)
 
 [node name="WallBottom" type="StaticBody2D" parent="Walls" groups=["walls"]]
 position = Vector2(400, 620)
@@ -51,7 +52,7 @@ offset_left = -450.0
 offset_top = -20.0
 offset_right = 450.0
 offset_bottom = 20.0
-color = Color(0.3, 0.35, 0.4, 1)
+color = Color(0.45, 0.48, 0.52, 1)
 
 [node name="WallLeft" type="StaticBody2D" parent="Walls" groups=["walls"]]
 position = Vector2(-20, 300)
@@ -66,7 +67,7 @@ offset_left = -20.0
 offset_top = -350.0
 offset_right = 20.0
 offset_bottom = 350.0
-color = Color(0.3, 0.35, 0.4, 1)
+color = Color(0.45, 0.48, 0.52, 1)
 
 [node name="WallRight" type="StaticBody2D" parent="Walls" groups=["walls"]]
 position = Vector2(820, 300)
@@ -81,7 +82,7 @@ offset_left = -20.0
 offset_top = -350.0
 offset_right = 20.0
 offset_bottom = 350.0
-color = Color(0.3, 0.35, 0.4, 1)
+color = Color(0.45, 0.48, 0.52, 1)
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(400, 300)
@@ -110,6 +111,8 @@ player = NodePath("../Player")
 [node name="GameManager" type="Node" parent="."]
 process_mode = 3
 script = ExtResource("6_manager")
+
+[node name="AudioManager" parent="." instance=ExtResource("7_audio")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
