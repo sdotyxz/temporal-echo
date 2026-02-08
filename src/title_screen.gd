@@ -2,71 +2,32 @@ extends Control
 
 @onready var title_label: Label
 @onready var start_button: Button
-@onready var background: ColorRect
+@onready var background: TextureRect
 
 func _ready():
 	print("🎮 开始游戏界面")
-	_create_ui()
 	_create_background()
+	_create_ui()
 
 func _create_background():
-	# 创建反重力背景
-	background = ColorRect.new()
+	# 创建图片背景
+	background = TextureRect.new()
 	background.name = "Background"
 	background.size = Vector2(800, 600)
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	
-	# 使用反重力着色器 - 粒子向上飘，零重力感
-	var shader = Shader.new()
-	shader.code = """
-	shader_type canvas_item;
-	uniform float time;
-	
-	void fragment() {
-		vec2 uv = FRAGCOORD.xy / vec2(800.0, 600.0);
-		
-		// 反重力：粒子向上飘动
-		float movement = mod(time * 0.1, 1.0);
-		vec2 moving_uv = uv;
-		moving_uv.y -= movement; // 向上移动
-		
-		// 创建漂浮的粒子
-		float particle = 0.0;
-		for(float i = 0.0; i < 5.0; i++) {
-			vec2 p = moving_uv * (3.0 + i) + vec2(i * 1.5);
-			p.y -= time * (0.1 + i * 0.02); // 反重力向上
-			float n = fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-			if(n > 0.98) {
-				particle += 0.3 * (1.0 - fract(p.y));
-			}
-		}
-		
-		// 深空背景渐变
-		vec3 color1 = vec3(0.02, 0.02, 0.08);
-		vec3 color2 = vec3(0.08, 0.02, 0.1);
-		vec3 bg = mix(color1, color2, uv.y + sin(uv.x * 3.0) * 0.2);
-		
-		// 添加反重力流光效果
-		float stream = sin(uv.x * 10.0 + time * 2.0) * 0.5 + 0.5;
-		stream *= exp(-abs(uv.y - 0.5) * 4.0);
-		bg += vec3(0.1, 0.3, 0.5) * stream * 0.15;
-		
-		// 叠加粒子
-		bg += vec3(0.6, 0.8, 1.0) * particle;
-		
-		COLOR = vec4(bg, 1.0);
-	}
-	"""
-	
-	var material = ShaderMaterial.new()
-	material.shader = shader
-	material.set_shader_parameter("time", 0.0)
-	background.material = material
+	# 加载 AI 生成的背景图
+	var texture = load("res://assets/promo/title_bg.jpg")
+	if texture:
+		background.texture = texture
+		print("🖼️ 已加载背景图片")
+	else:
+		print("⚠️ 背景图片加载失败，使用默认颜色")
+		background.modulate = Color(0.05, 0.02, 0.08)
 	
 	add_child(background)
 	move_child(background, 0)
-	
-	# 启动时间更新
-	set_process(true)
 
 func _create_ui():
 	# 标题
@@ -131,12 +92,6 @@ func _create_ui():
 	controls.position = Vector2(0, 520)
 	controls.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	add_child(controls)
-
-func _process(delta):
-	# 更新反重力背景时间
-	if background and background.material:
-		var current_time = background.material.get_shader_parameter("time")
-		background.material.set_shader_parameter("time", current_time + delta)
 
 func _on_start_pressed():
 	print("🎮 开始游戏！")
