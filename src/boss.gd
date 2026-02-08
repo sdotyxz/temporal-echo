@@ -127,6 +127,11 @@ func take_damage(amount: int) -> void:
 		# 双重命中！造成双倍伤害
 		amount *= 2
 		print("⚡ 双重命中! 伤害加倍: ", amount)
+		
+		# 触发屏幕震动效果
+		var game_manager = get_node_or_null("/root/Game/GameManager")
+		if game_manager and game_manager.has_method("trigger_double_hit_effect"):
+			game_manager.trigger_double_hit_effect()
 	
 	last_hit_time = current_time
 	

@@ -232,6 +232,11 @@ func take_damage(amount: int) -> void:
 	if audio_manager:
 		audio_manager.play_hit_player()
 	
+	# 触发屏幕受伤闪烁效果
+	var game_manager = get_node_or_null("/root/Game/GameManager")
+	if game_manager and game_manager.has_method("trigger_player_damage_flash"):
+		game_manager.trigger_player_damage_flash()
+	
 	# 更新血条
 	_update_health_bar()
 	

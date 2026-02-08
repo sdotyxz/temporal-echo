@@ -14,6 +14,11 @@ const GAME_DURATION: float = 120.0  # 2分钟倒计时
 @onready var boss_hp_label: Label
 @onready var player_hp_label: Label
 
+# 屏幕效果
+var shake_timer: float = 0.0
+var shake_intensity: float = 0.0
+var original_camera_pos: Vector2 = Vector2.ZERO
+
 func _ready():
 	print("🎮 游戏管理器启动")
 	_create_ui()
@@ -24,6 +29,45 @@ func _process(delta: float) -> void:
 		game_timer += delta
 		_update_timer_display()
 		_update_hud()
+		_update_screen_effects(delta)
+
+func _update_screen_effects(delta: float):
+	# 屏幕震动
+	if shake_timer > 0:
+		shake_timer -= delta
+		var shake_offset = Vector2(
+			randf_range(-shake_intensity, shake_intensity),
+			randf_range(-shake_intensity, shake_intensity)
+		)
+		# 获取相机并应用震动
+		var player = get_tree().get_first_node_in_group("player")
+		if player:
+			var camera = player.get_node_or_null("Camera2D")
+			if camera:
+				if shake_timer <= 0:
+					# 震动结束，恢复位置
+					camera.offset = Vector2.ZERO
+				else:
+					camera.offset = shake_offset
+
+func trigger_screen_shake(duration: float = 0.2, intensity: float = 2.0):
+	shake_timer = duration
+	shake_intensity = intensity
+	print("📳 屏幕震动: ", duration, "秒, 强度: ", intensity)
+
+func trigger_double_hit_effect():
+	trigger_screen_shake(0.2, 2.0)
+
+func trigger_player_damage_flash():
+	var hud_layer = get_node_or_null("HUDLayer")
+	if hud_layer:
+		var flash = hud_layer.get_node_or_null("DamageFlash")
+		if flash:
+			print("🔴 玩家受伤屏幕闪烁")
+			# 闪烁效果：半透明红色 -> 透明
+			flash.color = Color(1, 0, 0, 0.3)
+			var tween = create_tween()
+			tween.tween_property(flash, "color", Color(1, 0, 0, 0), 0.3)
 
 func _create_ui():
 	# 创建 UI CanvasLayer
@@ -121,6 +165,15 @@ func _create_hud():
 	var hud_canvas = CanvasLayer.new()
 	hud_canvas.name = "HUDLayer"
 	add_child(hud_canvas)
+	
+	# 屏幕受伤闪烁效果（全屏红色覆盖）
+	var damage_flash = ColorRect.new()
+	damage_flash.name = "DamageFlash"
+	damage_flash.color = Color(1, 0, 0, 0)
+	damage_flash.size = Vector2(800, 600)
+	damage_flash.position = Vector2(0, 0)
+	damage_flash.z_index = 100  # 确保在最上层
+	hud_canvas.add_child(damage_flash)
 	
 	# Boss血条背景
 	var boss_bar_bg = ColorRect.new()
