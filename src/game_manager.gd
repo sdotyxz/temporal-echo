@@ -19,8 +19,15 @@ func _process(delta: float) -> void:
 		_update_timer_display()
 
 func _create_ui():
+	# 创建 UI CanvasLayer
+	var ui_canvas = CanvasLayer.new()
+	ui_canvas.name = "GameOverUILayer"
+	add_child(ui_canvas)
+	
 	# 胜利画面
 	victory_screen = _create_screen("VictoryScreen", Color(0, 0.5, 0, 0.8))
+	ui_canvas.add_child(victory_screen)
+	
 	var victory_text = Label.new()
 	victory_text.text = "🎉 VICTORY! 🎉"
 	victory_text.add_theme_font_size_override("font_size", 48)
@@ -49,6 +56,8 @@ func _create_ui():
 	
 	# 游戏结束画面
 	game_over_screen = _create_screen("GameOverScreen", Color(0.5, 0, 0, 0.8))
+	ui_canvas.add_child(game_over_screen)
+	
 	var game_over_text = Label.new()
 	game_over_text.text = "💀 GAME OVER 💀"
 	game_over_text.add_theme_font_size_override("font_size", 48)
@@ -98,7 +107,6 @@ func _create_screen(name: String, color: Color) -> Control:
 	bg.size = Vector2(800, 600)
 	screen.add_child(bg)
 	
-	add_child(screen)
 	return screen
 
 func _update_timer_display():

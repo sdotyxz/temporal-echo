@@ -87,12 +87,8 @@ color = Color(0.3, 0.35, 0.4, 1)
 position = Vector2(400, 300)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-limit_left = -80
-limit_top = -60
-limit_right = 880
-limit_bottom = 660
 position_smoothing_enabled = true
-position_smoothing_speed = 10.0
+position_smoothing_speed = 5.0
 
 [node name="TrajectoryPreview" type="Node2D" parent="Player" node_paths=PackedStringArray("player")]
 script = ExtResource("4_trajectory")
