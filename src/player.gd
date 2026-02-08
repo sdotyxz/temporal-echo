@@ -6,6 +6,8 @@ const HISTORY_SIZE: int = 180  # 3秒 @ 60fps
 const MAX_HP: int = 3
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var health_bar_bg: ColorRect
+@onready var health_bar_fg: ColorRect
 
 # 历史帧数据结构
 class HistoryFrame:
@@ -33,6 +35,39 @@ func _ready():
 	print("🎯 玩家准备就绪")
 	print("📝 历史记录系统初始化 (", HISTORY_SIZE, " 帧)")
 	print("❤️ 玩家 HP: ", hp, "/", MAX_HP)
+	
+	# 创建玩家血条
+	_create_health_bar()
+
+func _create_health_bar():
+	# 创建 CanvasLayer 作为UI容器
+	var canvas = CanvasLayer.new()
+	canvas.name = "PlayerHealthUI"
+	add_child(canvas)
+	
+	# 血条背景
+	health_bar_bg = ColorRect.new()
+	health_bar_bg.name = "HealthBarBg"
+	health_bar_bg.color = Color(0.2, 0.2, 0.2, 0.8)
+	health_bar_bg.size = Vector2(120, 12)
+	health_bar_bg.position = Vector2(20, 560)  # 左下角
+	canvas.add_child(health_bar_bg)
+	
+	# 血条前景
+	health_bar_fg = ColorRect.new()
+	health_bar_fg.name = "HealthBarFg"
+	health_bar_fg.color = Color(0.2, 0.8, 0.2, 1.0)  # 绿色
+	health_bar_fg.size = Vector2(120, 12)
+	health_bar_fg.position = Vector2(20, 560)
+	canvas.add_child(health_bar_fg)
+	
+	# 血条标签
+	var label = Label.new()
+	label.name = "HealthLabel"
+	label.text = "HP: 3/3"
+	label.position = Vector2(150, 558)
+	label.add_theme_font_size_override("font_size", 14)
+	canvas.add_child(label)
 
 var test_mode: bool = false
 var test_target_position: Vector2 = Vector2.ZERO
@@ -136,7 +171,33 @@ func _process_echo_spawn() -> void:
 	if shoot_history.size() >= HISTORY_SIZE:
 		if shoot_history[0] and echo_spawn_index < position_history.size():
 			_spawn_echo()
-			shoot_history[0] = false  # 标记为已处理
+			# 不要立即标记为false，让AI有机会读取
+			# 使用一个单独的数组来跟踪已处理的回声
+			_process_echo_at_index(0)
+
+# 获取即将生成的回声信息（供AI查询）
+func get_pending_echo_info() -> Dictionary:
+	if shoot_history.size() >= HISTORY_SIZE and shoot_history[0]:
+		var old_frame = position_history[0]
+		return {
+			"will_spawn": true,
+			"position": old_frame.position,
+			"aim_direction": old_frame.aim_direction
+		}
+	return {"will_spawn": false}
+
+var processed_echo_indices: Array[int] = []
+
+func _process_echo_at_index(index: int) -> void:
+	if index not in processed_echo_indices:
+		processed_echo_indices.append(index)
+		# 延迟标记为已处理，给AI时间读取
+		_mark_processed_delayed(index)
+
+func _mark_processed_delayed(index: int) -> void:
+	await get_tree().create_timer(0.1).timeout
+	if index < shoot_history.size():
+		shoot_history[index] = false
 
 func _spawn_echo() -> void:
 	print("👻 生成回声!")
@@ -156,6 +217,9 @@ func take_damage(amount: int) -> void:
 	hp -= amount
 	print("💔 玩家受到 ", amount, " 点伤害! HP: ", hp, "/", MAX_HP)
 	
+	# 更新血条
+	_update_health_bar()
+	
 	# 视觉反馈 - 红色闪烁
 	_flash_red()
 	
@@ -167,10 +231,31 @@ func take_damage(amount: int) -> void:
 	if hp <= 0:
 		_die()
 
+func _update_health_bar():
+	if health_bar_fg:
+		var health_percent = float(hp) / MAX_HP
+		health_bar_fg.size.x = 120 * health_percent
+		
+		# 根据血量改变颜色
+		if health_percent > 0.6:
+			health_bar_fg.color = Color(0.2, 0.8, 0.2, 1.0)  # 绿色
+		elif health_percent > 0.3:
+			health_bar_fg.color = Color(0.9, 0.9, 0.2, 1.0)  # 黄色
+		else:
+			health_bar_fg.color = Color(0.9, 0.2, 0.2, 1.0)  # 红色
+	
+	# 更新标签
+	var canvas = get_node_or_null("PlayerHealthUI")
+	if canvas:
+		var label = canvas.get_node_or_null("HealthLabel")
+		if label:
+			label.text = "HP: %d/%d" % [hp, MAX_HP]
+
 func _flash_red():
 	sprite.modulate = Color(1, 0.3, 0.3, 1)
 	await get_tree().create_timer(0.2).timeout
-	sprite.modulate = Color(1, 1, 1, 1)
+	if sprite:
+		sprite.modulate = Color(1, 1, 1, 1)
 
 func _die():
 	is_dead = true
