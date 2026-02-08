@@ -103,6 +103,11 @@ func _bounce(wall: Node2D, normal: Vector2) -> void:
 	
 	print("🔄 反弹 #", bounce_count, " | 新速度: ", velocity.length(), " | 方向: ", velocity.normalized())
 	
+	# 播放反弹音效
+	var audio_manager = get_node_or_null("/root/Game/AudioManager")
+	if audio_manager:
+		audio_manager.play_bounce(bounce_count - 1)  # 传入反弹次数用于音调
+	
 	# 颜色变化
 	_update_color()
 	

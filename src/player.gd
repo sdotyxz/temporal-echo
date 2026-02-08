@@ -156,6 +156,11 @@ func _record_history_with_shoot(did_shoot: bool) -> void:
 # 发射子弹
 func _shoot() -> void:
 	print("🔫 玩家发射!")
+	# 播放开火音效
+	var audio_manager = get_node_or_null("/root/Game/AudioManager")
+	if audio_manager:
+		audio_manager.play_fire()
+	
 	var bullet_scene = load("res://scenes/bullet.tscn")
 	var bullet = bullet_scene.instantiate()
 	bullet.global_position = global_position
@@ -201,6 +206,11 @@ func _mark_processed_delayed(index: int) -> void:
 
 func _spawn_echo() -> void:
 	print("👻 生成回声!")
+	# 播放回声生成音效
+	var audio_manager = get_node_or_null("/root/Game/AudioManager")
+	if audio_manager:
+		audio_manager.play_echo_spawn()
+	
 	var old_frame = position_history[0]
 	
 	var echo_scene = load("res://scenes/echo.tscn")
@@ -216,6 +226,11 @@ func take_damage(amount: int) -> void:
 	
 	hp -= amount
 	print("💔 玩家受到 ", amount, " 点伤害! HP: ", hp, "/", MAX_HP)
+	
+	# 播放受伤音效
+	var audio_manager = get_node_or_null("/root/Game/AudioManager")
+	if audio_manager:
+		audio_manager.play_hit_player()
 	
 	# 更新血条
 	_update_health_bar()

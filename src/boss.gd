@@ -133,6 +133,11 @@ func take_damage(amount: int) -> void:
 	hp -= amount
 	print("💥 Boss 受到 ", amount, " 点伤害! HP: ", hp, "/", MAX_HP)
 	
+	# 播放命中音效
+	var audio_manager = get_node_or_null("/root/Game/AudioManager")
+	if audio_manager:
+		audio_manager.play_hit_boss()
+	
 	# 视觉反馈 - 红色闪烁
 	_flash_red()
 	
