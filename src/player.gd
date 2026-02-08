@@ -5,9 +5,16 @@ const SPEED: float = 200.0
 const HISTORY_SIZE: int = 180  # 3秒 @ 60fps
 const MAX_HP: int = 3
 
+# 玩家状态枚举
+enum State { IDLE, MOVE, AIM, SHOOT }
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var health_bar_bg: ColorRect
 @onready var health_bar_fg: ColorRect
+
+# 状态变量
+var current_state: State = State.IDLE
+var state_timer: float = 0.0
 
 # 历史帧数据结构
 class HistoryFrame:
@@ -96,46 +103,135 @@ var test_target_position: Vector2 = Vector2.ZERO
 
 func _physics_process(delta: float) -> void:
 	if test_mode:
-		# 测试模式：不处理输入，只记录历史
 		_aim_at_mouse()
 		_record_history()
 		return
+	
+	state_timer += delta
+	
+	# 状态机更新
+	_update_state_machine(delta)
+	
+	# 检查回声生成
+	_process_echo_spawn()
+
+func _update_state_machine(delta: float):
+	match current_state:
+		State.IDLE:
+			_update_idle(delta)
+		State.MOVE:
+			_update_move(delta)
+		State.AIM:
+			_update_aim(delta)
+		State.SHOOT:
+			_update_shoot(delta)
+
+# ========== IDLE 状态 ==========
+func _update_idle(delta: float):
+	# 面向鼠标
+	_aim_at_mouse()
+	
+	# 检查移动输入
+	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	if direction.length() > 0.1:
+		# 开始移动
+		_transition_to(State.MOVE)
+		return
+	
+	# 检查瞄准输入
+	if Input.is_action_pressed("aim"):
+		_transition_to(State.AIM)
+		return
+	
+	# 记录历史
+	_record_history_with_shoot(false)
+
+# ========== MOVE 状态 ==========
+func _update_move(delta: float):
+	# 面向鼠标
+	_aim_at_mouse()
 	
 	# 获取移动输入
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
 	# 设置速度
 	velocity = direction * SPEED
-	
-	# 移动
 	move_and_slide()
 	
-	# 面向鼠标
+	# 停止移动时回到IDLE
+	if direction.length() < 0.1:
+		_transition_to(State.IDLE)
+		return
+	
+	# 移动时不能射击，但可以进入瞄准状态
+	if Input.is_action_just_pressed("aim"):
+		_transition_to(State.AIM)
+		return
+	
+	# 记录历史
+	_record_history_with_shoot(false)
+
+# ========== AIM 状态 ==========
+func _update_aim(delta: float):
+	# 持续面向鼠标
 	_aim_at_mouse()
 	
-	# 处理瞄准状态
-	if Input.is_action_just_pressed("aim"):
-		is_aiming = true
-		print("🎯 进入瞄准状态")
+	# 检查是否还在瞄准
+	if not Input.is_action_pressed("aim"):
+		# 退出瞄准，检查是否在移动
+		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if direction.length() > 0.1:
+			_transition_to(State.MOVE)
+		else:
+			_transition_to(State.IDLE)
+		return
 	
-	if Input.is_action_just_released("aim"):
-		is_aiming = false
-		print("🎯 退出瞄准状态")
+	# 瞄准时可以射击
+	if Input.is_action_just_pressed("fire"):
+		_transition_to(State.SHOOT)
+		return
 	
-	# 记录历史（带射击状态）
-	var did_shoot := Input.is_action_just_pressed("fire")
-	_record_history_with_shoot(did_shoot)
+	# 记录历史
+	_record_history_with_shoot(false)
+
+# ========== SHOOT 状态 ==========
+func _update_shoot(delta: float):
+	# 执行射击
+	_shoot()
 	
-	# 处理射击
-	if did_shoot:
-		_shoot()
-		# 射击后退出瞄准状态
-		if is_aiming:
-			is_aiming = false
-			print("🎯 射击后退出瞄准状态")
+	# 记录历史（带射击）
+	_record_history_with_shoot(true)
 	
-	# 检查回声生成
-	_process_echo_spawn()
+	# 射击后回到瞄准状态（如果还在按住瞄准键）
+	if Input.is_action_pressed("aim"):
+		_transition_to(State.AIM)
+	else:
+		# 检查是否在移动
+		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if direction.length() > 0.1:
+			_transition_to(State.MOVE)
+		else:
+			_transition_to(State.IDLE)
+
+# ========== 状态转换 ==========
+func _transition_to(new_state: State):
+	var old_state_name = _get_state_name(current_state)
+	var new_state_name = _get_state_name(new_state)
+	
+	if current_state != new_state:
+		print("🎯 玩家状态: ", old_state_name, " → ", new_state_name)
+	
+	current_state = new_state
+	state_timer = 0.0
+
+func _get_state_name(state: State) -> String:
+	match state:
+		State.IDLE: return "待机"
+		State.MOVE: return "移动"
+		State.AIM: return "瞄准"
+		State.SHOOT: return "射击"
+		_: return "未知"
 
 func _aim_at_mouse() -> void:
 	var mouse_pos := get_global_mouse_position()
