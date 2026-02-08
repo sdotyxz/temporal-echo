@@ -22,8 +22,8 @@ func _play_title_bgm():
 	bgm_player.volume_db = -15.0
 	add_child(bgm_player)
 	
-	if FileAccess.file_exists("res://assets/audio/bgm.mp3"):
-		bgm_player.stream = load("res://assets/audio/bgm.mp3")
+	if FileAccess.file_exists("res://assets/audio/title_bgm.mp3"):
+		bgm_player.stream = load("res://assets/audio/title_bgm.mp3")
 		bgm_player.play()
 		print("🎵 播放标题界面BGM")
 
