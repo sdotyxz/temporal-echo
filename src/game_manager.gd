@@ -4,19 +4,26 @@ enum GameState { PLAYING, VICTORY, GAME_OVER }
 
 var state: GameState = GameState.PLAYING
 var game_timer: float = 0.0
+const GAME_DURATION: float = 120.0  # 2分钟倒计时
 
 @onready var victory_screen: Control
 @onready var game_over_screen: Control
 @onready var game_timer_label: Label
+@onready var boss_health_bar: ProgressBar
+@onready var player_health_bar: ProgressBar
+@onready var boss_hp_label: Label
+@onready var player_hp_label: Label
 
 func _ready():
 	print("🎮 游戏管理器启动")
 	_create_ui()
+	_create_hud()
 
 func _process(delta: float) -> void:
 	if state == GameState.PLAYING:
 		game_timer += delta
 		_update_timer_display()
+		_update_hud()
 
 func _create_ui():
 	# 创建 UI CanvasLayer
@@ -109,9 +116,100 @@ func _create_screen(name: String, color: Color) -> Control:
 	
 	return screen
 
+func _create_hud():
+	# HUD CanvasLayer
+	var hud_canvas = CanvasLayer.new()
+	hud_canvas.name = "HUDLayer"
+	add_child(hud_canvas)
+	
+	# Boss血条背景
+	var boss_bar_bg = ColorRect.new()
+	boss_bar_bg.name = "BossBarBg"
+	boss_bar_bg.color = Color(0.2, 0.2, 0.2, 0.8)
+	boss_bar_bg.position = Vector2(250, 20)
+	boss_bar_bg.size = Vector2(300, 25)
+	hud_canvas.add_child(boss_bar_bg)
+	
+	# Boss血条
+	boss_health_bar = ProgressBar.new()
+	boss_health_bar.name = "BossHealthBar"
+	boss_health_bar.position = Vector2(250, 20)
+	boss_health_bar.size = Vector2(300, 25)
+	boss_health_bar.max_value = 10
+	boss_health_bar.value = 10
+	boss_health_bar.show_percentage = false
+	# 样式化
+	var boss_style = StyleBoxFlat.new()
+	boss_style.bg_color = Color(0.8, 0.2, 0.2)
+	boss_health_bar.add_theme_stylebox_override("fill", boss_style)
+	var boss_bg_style = StyleBoxFlat.new()
+	boss_bg_style.bg_color = Color(0.2, 0.2, 0.2)
+	boss_health_bar.add_theme_stylebox_override("background", boss_bg_style)
+	hud_canvas.add_child(boss_health_bar)
+	
+	# Boss HP标签
+	boss_hp_label = Label.new()
+	boss_hp_label.name = "BossHPLabel"
+	boss_hp_label.text = "Boss HP: 10/10"
+	boss_hp_label.add_theme_font_size_override("font_size", 16)
+	boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_hp_label.position = Vector2(250, 22)
+	boss_hp_label.size = Vector2(300, 20)
+	hud_canvas.add_child(boss_hp_label)
+	
+	# 玩家血条背景
+	var player_bar_bg = ColorRect.new()
+	player_bar_bg.name = "PlayerBarBg"
+	player_bar_bg.color = Color(0.2, 0.2, 0.2, 0.8)
+	player_bar_bg.position = Vector2(20, 550)
+	player_bar_bg.size = Vector2(200, 20)
+	hud_canvas.add_child(player_bar_bg)
+	
+	# 玩家血条
+	player_health_bar = ProgressBar.new()
+	player_health_bar.name = "PlayerHealthBar"
+	player_health_bar.position = Vector2(20, 550)
+	player_health_bar.size = Vector2(200, 20)
+	player_health_bar.max_value = 3
+	player_health_bar.value = 3
+	player_health_bar.show_percentage = false
+	# 样式化
+	var player_style = StyleBoxFlat.new()
+	player_style.bg_color = Color(0.2, 0.6, 0.9)
+	player_health_bar.add_theme_stylebox_override("fill", player_style)
+	var player_bg_style = StyleBoxFlat.new()
+	player_bg_style.bg_color = Color(0.2, 0.2, 0.2)
+	player_health_bar.add_theme_stylebox_override("background", player_bg_style)
+	hud_canvas.add_child(player_health_bar)
+	
+	# 玩家HP标签
+	player_hp_label = Label.new()
+	player_hp_label.name = "PlayerHPLabel"
+	player_hp_label.text = "HP: 3/3"
+	player_hp_label.add_theme_font_size_override("font_size", 14)
+	player_hp_label.position = Vector2(20, 525)
+	player_hp_label.size = Vector2(200, 20)
+	hud_canvas.add_child(player_hp_label)
+
 func _update_timer_display():
 	if game_timer_label:
-		game_timer_label.text = "Time: %.1fs" % game_timer
+		var remaining = max(0, GAME_DURATION - game_timer)
+		var minutes = int(remaining) / 60
+		var seconds = int(remaining) % 60
+		game_timer_label.text = "Time: %d:%02d" % [minutes, seconds]
+
+func _update_hud():
+	# 更新Boss血条
+	var boss = get_tree().get_first_node_in_group("boss")
+	if boss and boss_health_bar:
+		boss_health_bar.value = boss.hp
+		boss_hp_label.text = "Boss HP: %d/%d" % [boss.hp, boss.MAX_HP]
+	
+	# 更新玩家血条
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player_health_bar:
+		player_health_bar.value = player.hp
+		player_hp_label.text = "HP: %d/%d" % [player.hp, player.MAX_HP]
 
 func trigger_victory() -> void:
 	if state != GameState.PLAYING:

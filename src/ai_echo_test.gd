@@ -62,7 +62,10 @@ func _load_data():
 			if error == OK:
 				var data = json.get_data()
 				round_count = data.get("round_count", 0)
-				results = data.get("results", [])
+				var loaded_results = data.get("results", [])
+				results.clear()
+				for r in loaded_results:
+					results.append(r)
 				print("📂 加载之前数据: %d局完成" % round_count)
 
 func _save_data():
