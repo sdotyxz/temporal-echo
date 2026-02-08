@@ -91,19 +91,14 @@ func _start_aim_sequence():
 	is_aiming = true
 	aim_timer = 0.0
 	
-	# 选择瞄准目标
-	var wall_targets = [
-		Vector2(400, 0),    # 上墙
-		Vector2(400, 600),  # 下墙
-		Vector2(0, 300),    # 左墙
-		Vector2(800, 300),  # 右墙
-		Vector2(200, 200),  # 左上区域
-		Vector2(600, 200),  # 右上区域
-		Vector2(200, 400),  # 左下区域
-		Vector2(600, 400),  # 右下区域
-	]
-	
-	aim_target = wall_targets[randi() % wall_targets.size()]
+	# 获取Boss位置作为瞄准目标
+	var bosses = get_tree().get_nodes_in_group("boss")
+	if bosses.size() > 0:
+		aim_target = bosses[0].global_position
+		print("🎯 瞄准Boss位置: ", aim_target)
+	else:
+		# 如果没有Boss，使用默认目标
+		aim_target = Vector2(400, 150)
 	
 	# 设置玩家瞄准状态
 	player.is_aiming = true
@@ -111,9 +106,20 @@ func _start_aim_sequence():
 
 func _perform_shoot():
 	print("🔫 AI射击!")
+	
+	# 第一次射击
 	Input.action_press("fire")
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.05).timeout
 	Input.action_release("fire")
+	
+	# 短暂延迟后第二次射击（尝试双重命中）
+	await get_tree().create_timer(0.08).timeout  # 总共0.08秒间隔，在0.1秒窗口内
+	print("🔫 AI双重射击!")
+	Input.action_press("fire")
+	await get_tree().create_timer(0.05).timeout
+	Input.action_release("fire")
+	
+	print("⚡ 双重命中尝试完成")
 
 func _update_ui():
 	var info = get_node_or_null("../UI/TestInfo")
