@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://src/trail_drawer.gd" id="3_trail"]
 [ext_resource type="Script" path="res://src/trajectory_preview.gd" id="4_trajectory"]
 [ext_resource type="PackedScene" uid="uid://boss1" path="res://scenes/boss.tscn" id="5_boss"]
+[ext_resource type="Script" path="res://src/game_manager.gd" id="6_manager"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
 size = Vector2(900, 40)
@@ -109,6 +110,10 @@ player = NodePath("../Player")
 [node name="Boss" parent="." instance=ExtResource("5_boss")]
 position = Vector2(600, 300)
 player = NodePath("../Player")
+
+[node name="GameManager" type="Node" parent="."]
+process_mode = 3
+script = ExtResource("6_manager")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

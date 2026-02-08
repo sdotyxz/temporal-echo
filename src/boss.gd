@@ -163,6 +163,14 @@ func _flash_red():
 func _die():
 	is_dead = true
 	print("☠️ Boss 被击败!")
+	
+	# 触发胜利
+	var game_manager = get_node_or_null("/root/Game/GameManager")
+	if game_manager:
+		game_manager.trigger_victory()
+	else:
+		print("⚠️ 未找到游戏管理器")
+	
 	queue_free()
 
 func get_hp() -> int:

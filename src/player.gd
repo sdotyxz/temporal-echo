@@ -260,6 +260,13 @@ func _flash_red():
 func _die():
 	is_dead = true
 	print("☠️ 玩家死亡!")
+	
+	# 触发游戏结束
+	var game_manager = get_node_or_null("/root/Game/GameManager")
+	if game_manager:
+		game_manager.trigger_game_over()
+	else:
+		print("⚠️ 未找到游戏管理器")
 	# 可以在这里添加游戏结束逻辑
 	# queue_free()
 
