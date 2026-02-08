@@ -31,13 +31,19 @@ func _ready():
 	hit_boss_sound.volume_db = -5.0
 	hit_player_sound.volume_db = -5.0
 	hit_player_sound.pitch_scale = 0.8
-	bgm_player.volume_db = -15.0
+	bgm_player.volume_db = -20.0  # BGM更小声
+	bgm_player.stream_paused = false
 	
 	# 尝试加载音频（如果存在）
 	_load_audio_if_exists(fire_sound, "res://assets/audio/fire.ogg")
 	_load_audio_if_exists(echo_spawn_sound, "res://assets/audio/echo_spawn.ogg")
 	_load_audio_if_exists(bounce_sound, "res://assets/audio/bounce.ogg")
 	_load_audio_if_exists(hit_boss_sound, "res://assets/audio/hit_boss.ogg")
+	_load_audio_if_exists(hit_player_sound, "res://assets/audio/hit_boss.ogg")
+	_load_audio_if_exists(bgm_player, "res://assets/audio/bgm.ogg")
+	
+	# 启动背景音乐
+	play_bgm()
 
 func _load_audio_if_exists(player: AudioStreamPlayer, path: String):
 	if FileAccess.file_exists(path):
@@ -77,6 +83,7 @@ func play_hit_player():
 func play_bgm():
 	if bgm_player and bgm_player.stream:
 		bgm_player.play()
+		print("🎵 开始播放背景音乐")
 
 func stop_bgm():
 	if bgm_player:
