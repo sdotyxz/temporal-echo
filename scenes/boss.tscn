@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://boss1"]
+
+[ext_resource type="Script" path="res://src/boss.gd" id="1_boss"]
+
+[node name="Boss" type="CharacterBody2D" groups=["boss", "enemies"]]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_boss")

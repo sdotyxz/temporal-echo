@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 const SPEED: float = 200.0
 const HISTORY_SIZE: int = 180  # 3秒 @ 60fps
+const MAX_HP: int = 3
 
 @onready var sprite: Sprite2D = $Sprite2D
 
@@ -20,9 +21,18 @@ class HistoryFrame:
 # 历史记录数组
 var position_history: Array[HistoryFrame] = []
 
+# 瞄准状态
+var is_aiming: bool = false
+
+# 玩家生命值
+var hp: int = MAX_HP
+var is_dead: bool = false
+var invulnerable: bool = false
+
 func _ready():
 	print("🎯 玩家准备就绪")
 	print("📝 历史记录系统初始化 (", HISTORY_SIZE, " 帧)")
+	print("❤️ 玩家 HP: ", hp, "/", MAX_HP)
 
 var test_mode: bool = false
 var test_target_position: Vector2 = Vector2.ZERO
@@ -43,12 +53,17 @@ func _physics_process(delta: float) -> void:
 	# 移动
 	move_and_slide()
 	
-	# 限制在屏幕内
-	position.x = clamp(position.x, 50, 750)
-	position.y = clamp(position.y, 50, 550)
-	
 	# 面向鼠标
 	_aim_at_mouse()
+	
+	# 处理瞄准状态
+	if Input.is_action_just_pressed("aim"):
+		is_aiming = true
+		print("🎯 进入瞄准状态")
+	
+	if Input.is_action_just_released("aim"):
+		is_aiming = false
+		print("🎯 退出瞄准状态")
 	
 	# 记录历史（带射击状态）
 	var did_shoot := Input.is_action_just_pressed("fire")
@@ -57,6 +72,10 @@ func _physics_process(delta: float) -> void:
 	# 处理射击
 	if did_shoot:
 		_shoot()
+		# 射击后退出瞄准状态
+		if is_aiming:
+			is_aiming = false
+			print("🎯 射击后退出瞄准状态")
 	
 	# 检查回声生成
 	_process_echo_spawn()
@@ -129,3 +148,38 @@ func _spawn_echo() -> void:
 	echo.aim_direction = old_frame.aim_direction
 	
 	get_tree().current_scene.add_child(echo)
+
+func take_damage(amount: int) -> void:
+	if is_dead or invulnerable:
+		return
+	
+	hp -= amount
+	print("💔 玩家受到 ", amount, " 点伤害! HP: ", hp, "/", MAX_HP)
+	
+	# 视觉反馈 - 红色闪烁
+	_flash_red()
+	
+	# 无敌时间
+	invulnerable = true
+	await get_tree().create_timer(1.0).timeout
+	invulnerable = false
+	
+	if hp <= 0:
+		_die()
+
+func _flash_red():
+	sprite.modulate = Color(1, 0.3, 0.3, 1)
+	await get_tree().create_timer(0.2).timeout
+	sprite.modulate = Color(1, 1, 1, 1)
+
+func _die():
+	is_dead = true
+	print("☠️ 玩家死亡!")
+	# 可以在这里添加游戏结束逻辑
+	# queue_free()
+
+func get_hp() -> int:
+	return hp
+
+func get_max_hp() -> int:
+	return MAX_HP

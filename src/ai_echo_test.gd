@@ -1,17 +1,20 @@
 extends Node
 
 @export var player: CharacterBody2D
-@export var test_duration: float = 8.0
+@export var test_duration: float = 15.0
 
 var timer: float = 0.0
 var move_timer: float = 0.0
 var shoot_timer: float = 0.0
+var aim_timer: float = 0.0
 var current_dir: Vector2 = Vector2.ZERO
+var is_aiming: bool = false
+var aim_target: Vector2 = Vector2.ZERO
 
 func _ready():
-	print("🧪 回声生成测试启动")
+	print("🧪 AI玩家测试启动")
 	print("⏱️ 测试时长: ", test_duration, " 秒")
-	print("🔫 2秒后自动射击，等待3秒后看回声生成")
+	print("🎯 AI将展示瞄准状态 + 轨迹线 + 射击")
 	_set_random_direction()
 
 func _physics_process(delta: float) -> void:
@@ -20,22 +23,41 @@ func _physics_process(delta: float) -> void:
 	
 	timer += delta
 	move_timer += delta
-	shoot_timer += delta
 	
 	# 移动控制
-	if move_timer >= 0.8:
+	if not is_aiming and move_timer >= 1.2:
 		move_timer = 0.0
 		_set_random_direction()
 	
 	# 使用输入系统移动
-	_apply_movement_input()
-	
-	# 2秒后自动射击
-	if shoot_timer >= 2.0 and shoot_timer < 2.1:
-		print("🔫 AI自动射击!")
-		Input.action_press("fire")
+	if not is_aiming:
+		_apply_movement_input()
 	else:
-		Input.action_release("fire")
+		# 瞄准时不移动
+		Input.action_release("move_right")
+		Input.action_release("move_left")
+		Input.action_release("move_up")
+		Input.action_release("move_down")
+	
+	# AI自动瞄准+射击流程
+	if not is_aiming and shoot_timer <= 0:
+		# 开始新的瞄准射击循环
+		_start_aim_sequence()
+	elif is_aiming:
+		aim_timer += delta
+		# 更新玩家朝向瞄准目标
+		var direction = (aim_target - player.global_position).normalized()
+		player.rotation = direction.angle()
+		
+		# 瞄准1.5秒后射击
+		if aim_timer >= 1.5:
+			_perform_shoot()
+			is_aiming = false
+			player.is_aiming = false
+			Input.action_release("aim")
+			shoot_timer = 2.0  # 2秒后再下一次射击
+	else:
+		shoot_timer -= delta
 	
 	# 更新UI
 	_update_ui()
@@ -64,25 +86,59 @@ func _apply_movement_input():
 	else:
 		Input.action_release("move_down")
 
+func _start_aim_sequence():
+	print("🎯 AI开始瞄准...")
+	is_aiming = true
+	aim_timer = 0.0
+	
+	# 选择瞄准目标
+	var wall_targets = [
+		Vector2(400, 0),    # 上墙
+		Vector2(400, 600),  # 下墙
+		Vector2(0, 300),    # 左墙
+		Vector2(800, 300),  # 右墙
+		Vector2(200, 200),  # 左上区域
+		Vector2(600, 200),  # 右上区域
+		Vector2(200, 400),  # 左下区域
+		Vector2(600, 400),  # 右下区域
+	]
+	
+	aim_target = wall_targets[randi() % wall_targets.size()]
+	
+	# 设置玩家瞄准状态
+	player.is_aiming = true
+	Input.action_press("aim")
+
+func _perform_shoot():
+	print("🔫 AI射击!")
+	Input.action_press("fire")
+	await get_tree().create_timer(0.1).timeout
+	Input.action_release("fire")
+
 func _update_ui():
 	var info = get_node_or_null("../UI/TestInfo")
 	if info:
 		var status = ""
-		if timer < 2.0:
-			status = "⏳ 移动中... %.1fs" % (2.0 - timer)
-		elif timer < 5.0:
-			status = "🔫 已射击! 等待回声... %.1fs" % (5.0 - timer)
-		else:
-			status = "✅ 检查回声生成!"
+		var bullets = get_tree().get_nodes_in_group("bullets")
 		
-		info.text = "🧪 回声生成测试\n" + status + "\n⏱️ 总时间: %.1fs" % timer
+		if is_aiming:
+			status = "🎯 瞄准中... %.1fs" % (0.8 - aim_timer)
+		elif timer < 3.0:
+			status = "⏳ 移动中..."
+		else:
+			status = "🔄 观察反弹 | 活动子弹: " + str(bullets.size())
+		
+		info.text = "🤖 AI玩家测试 | 时间: %.1f/%ds\n%s\n🎨 白→黄→橙→红 = 反弹次数" % [timer, test_duration, status]
 
 func _end_test():
 	Input.action_release("move_right")
 	Input.action_release("move_left")
-	Input.action_release("move_down")
 	Input.action_release("move_up")
+	Input.action_release("move_down")
 	Input.action_release("fire")
+	Input.action_release("aim")
+	if player != null:
+		player.is_aiming = false
 	
-	print("✅ 回声生成测试完成")
+	print("✅ AI测试完成")
 	queue_free()
