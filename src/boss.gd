@@ -3,14 +3,18 @@ extends CharacterBody2D
 
 const SPEED: float = 80.0
 const MAX_HP: int = 10
+const DOUBLE_HIT_WINDOW: float = 0.1  # 0.1秒窗口检测双重命中
 
 @export var player: CharacterBody2D
 
 @onready var sprite: Sprite2D
 @onready var collision_shape: CollisionShape2D
+@onready var health_bar_bg: ColorRect
+@onready var health_bar_fg: ColorRect
 
 var hp: int = MAX_HP
 var is_dead: bool = false
+var last_hit_time: float = -1.0  # 上次受伤时间
 
 func _ready():
 	print("👹 Boss 已生成")
@@ -34,6 +38,10 @@ func _ready():
 	else:
 		print("👹 玩家引用已设置: ", player)
 	
+	# 添加到 boss 组
+	add_to_group("boss")
+	add_to_group("enemies")
+	
 	# 创建精灵
 	sprite = Sprite2D.new()
 	sprite.name = "Sprite2D"
@@ -56,6 +64,26 @@ func _ready():
 	# 设置碰撞层
 	collision_layer = 2  # Enemies 层
 	collision_mask = 1   # Player 层
+	
+	# 创建血条
+	_create_health_bar()
+
+func _create_health_bar():
+	# 血条背景
+	health_bar_bg = ColorRect.new()
+	health_bar_bg.name = "HealthBarBg"
+	health_bar_bg.color = Color(0.2, 0.2, 0.2, 0.8)
+	health_bar_bg.size = Vector2(64, 6)
+	health_bar_bg.position = Vector2(-32, -45)  # 位于 Boss 上方
+	add_child(health_bar_bg)
+	
+	# 血条前景
+	health_bar_fg = ColorRect.new()
+	health_bar_fg.name = "HealthBarFg"
+	health_bar_fg.color = Color(0.9, 0.2, 0.2, 1.0)
+	health_bar_fg.size = Vector2(64, 6)
+	health_bar_fg.position = Vector2(-32, -45)
+	add_child(health_bar_fg)
 
 func _physics_process(delta: float) -> void:
 	if is_dead or player == null:
@@ -89,18 +117,46 @@ func _damage_player(player_node: Node2D):
 		player_node.take_damage(1)
 
 func take_damage(amount: int) -> void:
+	if is_dead:
+		return
+	
+	var current_time = Time.get_ticks_msec() / 1000.0  # 转换为秒
+	
+	# 检测是否在双重命中窗口内 (0.1秒)
+	if last_hit_time > 0 and (current_time - last_hit_time) <= DOUBLE_HIT_WINDOW:
+		# 双重命中！造成双倍伤害
+		amount *= 2
+		print("⚡ 双重命中! 伤害加倍: ", amount)
+	
+	last_hit_time = current_time
+	
 	hp -= amount
 	print("💥 Boss 受到 ", amount, " 点伤害! HP: ", hp, "/", MAX_HP)
 	
 	# 视觉反馈 - 红色闪烁
 	_flash_red()
 	
+	# 更新血条
+	_update_health_bar()
+	
 	if hp <= 0:
 		_die()
 
+func _update_health_bar():
+	if health_bar_fg:
+		var health_percent = float(hp) / MAX_HP
+		health_bar_fg.size.x = 64 * health_percent
+		# 根据血量改变颜色
+		if health_percent > 0.5:
+			health_bar_fg.color = Color(0.2, 0.9, 0.2, 1.0)  # 绿色
+		elif health_percent > 0.25:
+			health_bar_fg.color = Color(0.9, 0.9, 0.2, 1.0)  # 黄色
+		else:
+			health_bar_fg.color = Color(0.9, 0.2, 0.2, 1.0)  # 红色
+
 func _flash_red():
 	# 简单的闪烁效果
-	sprite.modulate = Color(1, 0.5, 0.5, 1)
+	sprite.modulate = Color(1, 0.3, 0.3, 1)
 	await get_tree().create_timer(0.1).timeout
 	sprite.modulate = Color(1, 1, 1, 1)
 

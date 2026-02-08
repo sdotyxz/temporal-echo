@@ -7,6 +7,7 @@ const MAX_BOUNCES: int = 3
 var velocity: Vector2 = Vector2.ZERO
 var bounce_count: int = 0
 var is_echo: bool = false
+var has_dealt_damage: bool = false  # 防止重复伤害
 
 @onready var sprite: Sprite2D
 
@@ -30,7 +31,41 @@ func _ready():
 	# 设置初始颜色
 	_update_color()
 	
+	# 连接碰撞信号（检查是否已连接）
+	if not body_entered.is_connected(_on_body_entered):
+		body_entered.connect(_on_body_entered)
+	
+	# 创建碰撞形状（用于检测与Boss的碰撞）
+	var collision_shape = get_node_or_null("CollisionShape2D")
+	if not collision_shape:
+		collision_shape = CollisionShape2D.new()
+		collision_shape.name = "CollisionShape2D"
+		var circle_shape = CircleShape2D.new()
+		circle_shape.radius = 6.0  # 子弹半径
+		collision_shape.shape = circle_shape
+		add_child(collision_shape)
+	
+	# 设置碰撞层 - 检测墙壁(4)和敌人(2)
+	collision_layer = 0  # 子弹自己不占据层
+	collision_mask = 4 | 2  # 检测墙壁层和敌人层
+	
+	# 确保 Area2D 监控开启
+	monitoring = true
+	monitorable = true
+	
 	print("🎯 子弹已创建，位置: ", global_position)
+
+func _on_body_entered(body: Node2D) -> void:
+	if has_dealt_damage:
+		return
+	
+	# 检测是否击中 Boss
+	if body.is_in_group("boss") or body.is_in_group("enemies"):
+		print("💥 子弹击中 Boss!")
+		if body.has_method("take_damage"):
+			body.take_damage(1)
+		has_dealt_damage = true
+		queue_free()  # 击中后销毁
 
 func _physics_process(delta: float) -> void:
 	# 射线检测墙壁
