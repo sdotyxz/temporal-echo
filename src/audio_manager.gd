@@ -40,7 +40,7 @@ func _ready():
 	_load_audio_if_exists(bounce_sound, "res://assets/audio/bounce.ogg")
 	_load_audio_if_exists(hit_boss_sound, "res://assets/audio/hit_boss.ogg")
 	_load_audio_if_exists(hit_player_sound, "res://assets/audio/hit_boss.ogg")
-	_load_audio_if_exists(bgm_player, "res://assets/audio/bgm.ogg")
+	_load_audio_if_exists(bgm_player, "res://assets/audio/bgm.mp3")  # 魔王魂战斗音乐
 	
 	# 启动背景音乐
 	play_bgm()
