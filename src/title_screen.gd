@@ -8,6 +8,15 @@ func _ready():
 	print("🎮 开始游戏界面")
 	_create_background()
 	_create_ui()
+	
+	# 自动开始游戏（3秒后）
+	_auto_start_game()
+
+func _auto_start_game():
+	print("⏱️ 3秒后自动开始游戏...")
+	await get_tree().create_timer(3.0).timeout
+	print("🤖 自动点击开始游戏！")
+	_on_start_pressed()
 
 func _create_background():
 	# 创建图片背景
