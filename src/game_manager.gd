@@ -271,6 +271,9 @@ func trigger_victory() -> void:
 	state = GameState.VICTORY
 	print("🎉 胜利！游戏时间: %.2f秒" % game_timer)
 	
+	# 播放胜利音效
+	_play_victory_sound()
+	
 	# 更新胜利画面上的时间
 	var subtext = victory_screen.get_node_or_null("VictorySubtext")
 	if subtext:
@@ -287,6 +290,9 @@ func trigger_game_over() -> void:
 	
 	state = GameState.GAME_OVER
 	print("💀 游戏结束！存活时间: %.2f秒" % game_timer)
+	
+	# 播放失败音效
+	_play_gameover_sound()
 	
 	game_over_screen.visible = true
 	
@@ -309,6 +315,26 @@ func restart_game() -> void:
 	
 	# 重新加载当前场景
 	get_tree().reload_current_scene()
+
+func _play_victory_sound():
+	# 创建临时音频播放器播放胜利音效
+	var player = AudioStreamPlayer.new()
+	add_child(player)
+	if FileAccess.file_exists("res://assets/audio/victory.ogg"):
+		player.stream = load("res://assets/audio/victory.ogg")
+		player.volume_db = -5.0
+		player.play()
+		print("🎵 播放胜利音效")
+
+func _play_gameover_sound():
+	# 创建临时音频播放器播放失败音效
+	var player = AudioStreamPlayer.new()
+	add_child(player)
+	if FileAccess.file_exists("res://assets/audio/gameover.ogg"):
+		player.stream = load("res://assets/audio/gameover.ogg")
+		player.volume_db = -5.0
+		player.play()
+		print("🎵 播放失败音效")
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart"):
