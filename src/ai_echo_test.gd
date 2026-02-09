@@ -24,9 +24,9 @@ var _has_recorded: bool = false  # 防止重复记录
 # 配置参数
 const SAFE_DISTANCE: float = 400.0
 const EMERGENCY_DISTANCE: float = 100.0  # 紧急逃离距离
-const MIN_AIM_DISTANCE: float = 120.0  # 降低，让AI在逃离边缘也能射击
-const SHOOT_COOLDOWN: float = 1.0
-const AIM_DURATION: float = 0.3
+const MIN_AIM_DISTANCE: float = 150.0  # 降低，让AI更容易射击
+const SHOOT_COOLDOWN: float = 0.5  # 减少冷却时间
+const AIM_DURATION: float = 0.2  # 减少瞄准时间
 
 # 智能移动采样配置
 var sample_directions: Array[Vector2] = [
@@ -103,18 +103,20 @@ func _update_state_machine(delta: float, boss: Node2D):
 # ========== IDLE 状态 ==========
 func _update_idle(delta: float, boss: Node2D):
 	_stop_movement()
+	_release_aim()
 	
 	var dist = player.global_position.distance_to(boss.global_position)
 	
 	print("🤖 IDLE状态 | 距离Boss: %.0fpx | 计时: %.1f" % [dist, state_timer])
 	
-	if dist < SAFE_DISTANCE:
+	# 优先检查射击机会
+	if _can_shoot(dist):
+		print("🤖 IDLE → AIM (可以射击)")
+		_transition_to(State.AIM)
+	elif dist < SAFE_DISTANCE:
 		print("🤖 IDLE → MOVE (逃离Boss)")
 		move_direction = _pick_best_direction(boss)
 		_transition_to(State.MOVE)
-	elif _can_shoot(dist):
-		print("🤖 IDLE → AIM (射击)")
-		_transition_to(State.AIM)
 	else:
 		if state_timer > 0.5:
 			print("🤖 IDLE → MOVE (巡逻)")
@@ -125,11 +127,11 @@ func _update_idle(delta: float, boss: Node2D):
 func _update_move(delta: float, boss: Node2D):
 	var dist = player.global_position.distance_to(boss.global_position)
 	
-	print("🤖 MOVE状态 | 距离Boss: %.0fpx | 方向: %s" % [dist, move_direction])
+	print("🤖 MOVE状态 | 距离Boss: %.0fpx | 计时: %.2f" % [dist, state_timer])
 	
-	# 检查射击机会（在逃离前）
-	if _can_shoot(dist) and state_timer > 0.3:
-		print("🤖 MOVE → AIM (机会射击) 距离: %.0fpx" % dist)
+	# 检查射击机会（优先于移动）
+	if _can_shoot(dist):
+		print("🤖 MOVE → AIM (可以射击) 距离: %.0fpx" % dist)
 		_transition_to(State.AIM)
 		return
 	
@@ -153,13 +155,22 @@ func _update_move(delta: float, boss: Node2D):
 func _update_aim(delta: float, boss: Node2D):
 	_stop_movement()
 	
+	# 持续按下瞄准键
+	Input.action_press("aim")
+	
+	# 持续朝向Boss
 	var aim_dir = (boss.global_position - player.global_position).normalized()
 	player.rotation = aim_dir.angle()
 	
+	print("🤖 AIM状态 | 计时: %.2f/%.1f" % [state_timer, AIM_DURATION])
+	
+	# 瞄准时间到，射击
 	if state_timer >= AIM_DURATION:
+		print("🤖 AIM时间到，射击!")
 		_shoot()
 		last_shot_time = game_timer
 		_transition_to(State.IDLE)
+		_release_aim()
 
 # ========== 智能方向选择 ==========
 func _pick_best_direction(boss: Node2D) -> Vector2:
@@ -290,7 +301,10 @@ func _restart_game():
 	get_tree().reload_current_scene()
 
 func _can_shoot(dist: float) -> bool:
-	return dist >= MIN_AIM_DISTANCE and (game_timer - last_shot_time) >= SHOOT_COOLDOWN
+	var can = dist >= MIN_AIM_DISTANCE and (game_timer - last_shot_time) >= SHOOT_COOLDOWN
+	if not can:
+		print("🤖 _can_shoot=false | dist=%.0f (need>=%.0f) | cooldown=%.1f/%.1f" % [dist, MIN_AIM_DISTANCE, game_timer - last_shot_time, SHOOT_COOLDOWN])
+	return can
 
 func _apply_direction(dir: Vector2):
 	if dir.x > 0.1:
@@ -319,7 +333,15 @@ func _stop_movement():
 	Input.action_release("move_up")
 	Input.action_release("move_down")
 
+func _release_aim():
+	Input.action_release("aim")
+
 func _shoot():
-	Input.action_press("fire")
-	await get_tree().create_timer(0.05).timeout
-	Input.action_release("fire")
+	print("🔫 AI射击!")
+	# 直接调用玩家的射击方法
+	if player and player.has_method("_shoot"):
+		player._shoot()
+	else:
+		# 备用：通过Input触发
+		Input.action_press("fire")
+		Input.action_release("fire")
