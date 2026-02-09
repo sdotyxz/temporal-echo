@@ -14,6 +14,9 @@ var game_timer: float = 0.0
 # 移动相关
 var move_direction: Vector2 = Vector2.ZERO
 var last_shot_time: float = -10.0
+var _fire_pressed: bool = false  # 跟踪射击按键状态
+var _fire_press_frame: int = 0   # 按下时的帧数
+var _shooting: bool = false      # 是否正在射击（等待玩家完成）
 
 # 统计（从文件读取）
 var round_count: int = 0
@@ -75,6 +78,11 @@ func _save_data():
 		file.store_string(JSON.stringify(data))
 
 func _physics_process(delta: float) -> void:
+	# 处理射击按键释放（延迟一帧，让玩家能检测到is_action_just_pressed）
+	if _fire_pressed and Engine.get_process_frames() > _fire_press_frame + 1:
+		Input.action_release("fire")
+		_fire_pressed = false
+	
 	if player == null:
 		return
 	
@@ -155,6 +163,16 @@ func _update_move(delta: float, boss: Node2D):
 func _update_aim(delta: float, boss: Node2D):
 	_stop_movement()
 	
+	# 如果正在等待玩家完成射击，保持aim并返回
+	if _shooting:
+		Input.action_press("aim")
+		# 给玩家一帧时间后，完成射击流程
+		if Engine.get_process_frames() > _fire_press_frame + 1:
+			_shooting = false
+			_release_aim()
+			_transition_to(State.IDLE)
+		return
+	
 	# 持续按下瞄准键
 	Input.action_press("aim")
 	
@@ -169,8 +187,7 @@ func _update_aim(delta: float, boss: Node2D):
 		print("🤖 AIM时间到，射击!")
 		_shoot()
 		last_shot_time = game_timer
-		_transition_to(State.IDLE)
-		_release_aim()
+		_shooting = true  # 标记正在射击，等待玩家完成
 
 # ========== 智能方向选择 ==========
 func _pick_best_direction(boss: Node2D) -> Vector2:
@@ -337,11 +354,10 @@ func _release_aim():
 	Input.action_release("aim")
 
 func _shoot():
-	print("🔫 AI射击!")
-	# 直接调用玩家的射击方法
-	if player and player.has_method("_shoot"):
-		player._shoot()
-	else:
-		# 备用：通过Input触发
-		Input.action_press("fire")
-		Input.action_release("fire")
+	var current_frame = Engine.get_process_frames()
+	print("🔫 AI射击! (Input方式) 当前帧: %d" % current_frame)
+	# 使用Input模拟玩家按键，延迟一帧释放
+	Input.action_press("fire")
+	_fire_pressed = true
+	_fire_press_frame = current_frame
+	print("🔫 fire已按下，将在帧 %d 后释放" % (_fire_press_frame + 1))

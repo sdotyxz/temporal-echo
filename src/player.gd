@@ -177,6 +177,8 @@ func _update_aim(delta: float):
 	# 持续面向鼠标
 	_aim_at_mouse()
 	
+	print("🎯 AIM状态 | fire按下: %s | just_pressed: %s" % [Input.is_action_pressed("fire"), Input.is_action_just_pressed("fire")])
+	
 	# 检查是否还在瞄准
 	if not Input.is_action_pressed("aim"):
 		# 退出瞄准，检查是否在移动
@@ -187,8 +189,9 @@ func _update_aim(delta: float):
 			_transition_to(State.IDLE)
 		return
 	
-	# 瞄准时可以射击
-	if Input.is_action_just_pressed("fire"):
+	# 瞄准时可以射击（检测just_pressed或当前被按下，用于AI输入）
+	if Input.is_action_just_pressed("fire") or Input.is_action_pressed("fire"):
+		print("🎯 fire触发! 进入SHOOT状态")
 		_transition_to(State.SHOOT)
 		return
 	
@@ -197,11 +200,23 @@ func _update_aim(delta: float):
 
 # ========== SHOOT 状态 ==========
 func _update_shoot(delta: float):
+	print("🔫 SHOOT状态 - 执行射击!")
+	
 	# 执行射击
 	_shoot()
 	
 	# 记录历史（带射击）
 	_record_history_with_shoot(true)
+	
+	# 射击后检查状态
+	if Input.is_action_pressed("aim"):
+		_transition_to(State.AIM)
+	else:
+		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if direction.length() > 0.1:
+			_transition_to(State.MOVE)
+		else:
+			_transition_to(State.IDLE)
 	
 	# 射击后回到瞄准状态（如果还在按住瞄准键）
 	if Input.is_action_pressed("aim"):
