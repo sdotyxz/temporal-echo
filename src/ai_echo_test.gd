@@ -28,8 +28,17 @@ var _has_recorded: bool = false  # 防止重复记录
 const SAFE_DISTANCE: float = 400.0
 const EMERGENCY_DISTANCE: float = 100.0  # 紧急逃离距离
 const MIN_AIM_DISTANCE: float = 150.0  # 降低，让AI更容易射击
-const SHOOT_COOLDOWN: float = 0.5  # 减少冷却时间
-const AIM_DURATION: float = 0.2  # 减少瞄准时间
+const SHOOT_COOLDOWN: float = 0.5  # 基础冷却时间
+const AIM_DURATION: float = 0.2  # 基础瞄准时间
+
+# 随机噪声配置
+const DIRECTION_NOISE: float = 0.3  # 方向随机噪声 (0-1)
+const COOLDOWN_VARIATION: float = 0.2  # 冷却时间变化 ±0.2秒
+const AIM_VARIATION: float = 0.1  # 瞄准时间变化 ±0.1秒
+const SAFE_DIST_VARIATION: float = 50.0  # 安全距离变化 ±50px
+
+# 随机种子（每局不同）
+var rng: RandomNumberGenerator
 
 # 智能移动采样配置
 var sample_directions: Array[Vector2] = [
@@ -42,6 +51,10 @@ const PREDICTION_TIME: float = 1.0
 const SAVE_FILE: String = "user://ai_test_data.json"
 
 func _ready():
+	# 初始化随机数生成器（每局不同）
+	rng = RandomNumberGenerator.new()
+	rng.randomize()
+	
 	# 检查启动参数，如果没有--ai-test参数则禁用AI
 	var args = OS.get_cmdline_args()
 	if not args.has("--ai-test"):
@@ -51,6 +64,7 @@ func _ready():
 		return
 	
 	print("🤖 AI测试模式已启动 (使用 --ai-test 参数)")
+	print("🎲 随机噪声已启用: 方向=%.1f, 冷却±%.1fs, 瞄准±%.1fs" % [DIRECTION_NOISE, COOLDOWN_VARIATION, AIM_VARIATION])
 	
 	# 设置为ALWAYS模式，即使游戏暂停也能运行（用于检测游戏结束）
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -190,25 +204,34 @@ func _update_aim(delta: float, boss: Node2D):
 	var aim_dir = (boss.global_position - player.global_position).normalized()
 	player.rotation = aim_dir.angle()
 	
-	print("🤖 AIM状态 | 计时: %.2f/%.1f" % [state_timer, AIM_DURATION])
+	# 添加随机瞄准时间
+	var actual_aim_duration = AIM_DURATION + rng.randf_range(-AIM_VARIATION, AIM_VARIATION)
+	
+	print("🤖 AIM状态 | 计时: %.2f/%.2f" % [state_timer, actual_aim_duration])
 	
 	# 瞄准时间到，射击
-	if state_timer >= AIM_DURATION:
+	if state_timer >= actual_aim_duration:
 		print("🤖 AIM时间到，射击!")
 		_shoot()
 		last_shot_time = game_timer
 		_shooting = true  # 标记正在射击，等待玩家完成
 
-# ========== 智能方向选择 ==========
+# ========== 智能方向选择（带噪声）==========
 func _pick_best_direction(boss: Node2D) -> Vector2:
 	var best_dir = Vector2.ZERO
 	var best_score = -999.0
 	
 	for dir in sample_directions:
 		var score = _evaluate_direction(dir, boss)
+		# 添加随机噪声
+		score += rng.randf() * DIRECTION_NOISE
 		if score > best_score:
 			best_score = score
 			best_dir = dir
+	
+	# 额外添加方向扰动
+	var angle_noise = rng.randf_range(-PI/8, PI/8)  # ±22.5度
+	best_dir = best_dir.rotated(angle_noise)
 	
 	return best_dir
 
@@ -328,9 +351,13 @@ func _restart_game():
 	get_tree().reload_current_scene()
 
 func _can_shoot(dist: float) -> bool:
-	var can = dist >= MIN_AIM_DISTANCE and (game_timer - last_shot_time) >= SHOOT_COOLDOWN
+	# 添加随机冷却时间变化
+	var actual_cooldown = SHOOT_COOLDOWN + rng.randf_range(-COOLDOWN_VARIATION, COOLDOWN_VARIATION)
+	var actual_min_dist = MIN_AIM_DISTANCE + rng.randf_range(-SAFE_DIST_VARIATION, SAFE_DIST_VARIATION)
+	
+	var can = dist >= actual_min_dist and (game_timer - last_shot_time) >= actual_cooldown
 	if not can:
-		print("🤖 _can_shoot=false | dist=%.0f (need>=%.0f) | cooldown=%.1f/%.1f" % [dist, MIN_AIM_DISTANCE, game_timer - last_shot_time, SHOOT_COOLDOWN])
+		print("🤖 _can_shoot=false | dist=%.0f (need>=%.0f) | cooldown=%.1f/%.1f" % [dist, actual_min_dist, game_timer - last_shot_time, actual_cooldown])
 	return can
 
 func _apply_direction(dir: Vector2):
