@@ -42,6 +42,16 @@ const PREDICTION_TIME: float = 1.0
 const SAVE_FILE: String = "user://ai_test_data.json"
 
 func _ready():
+	# 检查启动参数，如果没有--ai-test参数则禁用AI
+	var args = OS.get_cmdline_args()
+	if not args.has("--ai-test"):
+		print("🎮 人工模式 - 使用键盘/鼠标控制 (添加 --ai-test 启用AI)")
+		set_process(false)
+		set_physics_process(false)
+		return
+	
+	print("🤖 AI测试模式已启动 (使用 --ai-test 参数)")
+	
 	# 设置为ALWAYS模式，即使游戏暂停也能运行（用于检测游戏结束）
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	
