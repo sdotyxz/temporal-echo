@@ -7,3 +7,6 @@
 *.pck
 export.cfg
 export_presets.cfg
+
+# Development test videos
+videos/
